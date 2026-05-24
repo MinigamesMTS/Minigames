@@ -3,61 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry Dash - Clon Profesional HTML5</title>
+    <title>Geometry Dash - Edición Profesional</title>
     <style>
         /* ==========================================================================
-           ESTILOS (INTERFAZ Y CONTENEDOR)
+           ESTILOS (INTERFAZ Y CONTENEDOR) - AHORA CON EFECTOS NEON Y ANIMACIONES
            ========================================================================== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial Black', sans-serif; user-select: none; }
-        body { background-color: #111; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; }
+        
+        /* Fondo animado oscuro para la página */
+        body { 
+            background: radial-gradient(circle at center, #222 0%, #000 100%); 
+            display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; 
+        }
         
         #game-wrapper {
             position: relative;
             width: 800px;
             height: 400px;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
-            border: 4px solid #222;
+            box-shadow: 0 0 40px rgba(0, 255, 204, 0.2), 0 0 15px rgba(255, 255, 255, 0.1) inset;
+            border: 4px solid #333;
+            border-radius: 4px;
+            background-color: #000;
         }
 
-        canvas { display: block; width: 100%; height: 100%; }
+        canvas { display: block; width: 100%; height: 100%; border-radius: 2px; }
+
+        /* Barra de Progreso */
+        #progress-container {
+            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+            width: 400px; height: 12px; background: rgba(0,0,0,0.6);
+            border: 2px solid #555; border-radius: 10px; z-index: 5; display: none;
+            overflow: hidden;
+        }
+        #progress-fill {
+            width: 0%; height: 100%; background: linear-gradient(90deg, #00ffcc, #00ff66);
+            box-shadow: 0 0 10px #00ffcc; transition: width 0.1s linear;
+        }
+
+        #attempt-counter { 
+            position: absolute; top: 10px; left: 20px; font-size: 20px; 
+            color: rgba(255,255,255,0.7); text-shadow: 2px 2px 0 #000; z-index: 5; display: none;
+        }
 
         /* Pantallas de Interfaz */
         .ui-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(3px); z-index: 10; display: none;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 10; display: none;
+            animation: fadeIn 0.3s ease-out;
         }
         .ui-screen.active { display: flex; }
 
-        h1 { font-size: 50px; text-transform: uppercase; margin-bottom: 10px; text-shadow: 4px 4px 0 #000; letter-spacing: 2px; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        h1 { font-size: 55px; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 0 20px rgba(0, 255, 204, 0.5); letter-spacing: 3px; }
         h1 span { color: #00ffcc; }
+        .subtitle { color: #aaa; margin-bottom: 25px; font-size: 14px; letter-spacing: 1px; }
 
         .btn {
             background: linear-gradient(to bottom, #4CAF50, #2E7D32);
-            border: 3px solid #1B5E20; color: white; padding: 15px 40px; font-size: 24px;
-            cursor: pointer; border-radius: 8px; margin: 10px; text-transform: uppercase;
-            box-shadow: 0 6px 0 #1B5E20; transition: all 0.1s;
+            border: 3px solid #1B5E20; color: white; padding: 12px 35px; font-size: 20px;
+            cursor: pointer; border-radius: 6px; margin: 10px; text-transform: uppercase;
+            box-shadow: 0 6px 0 #1B5E20, 0 10px 20px rgba(0,0,0,0.5); 
+            transition: all 0.15s; position: relative; overflow: hidden;
         }
+        .btn::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: rgba(255,255,255,0.1); transform: rotate(45deg); transition: 0.3s; opacity: 0;
+        }
+        .btn:hover::after { opacity: 1; transform: rotate(45deg) translate(20%, 20%); }
         .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #1B5E20; }
         
-        .level-btns { display: flex; gap: 15px; margin-top: 20px; }
+        .level-btns { display: flex; gap: 15px; margin-top: 10px; }
         .btn-stereo { background: #1e90ff; border-color: #00008b; box-shadow: 0 6px 0 #00008b; }
         .btn-deadlocked { background: #8a2be2; border-color: #4b0082; box-shadow: 0 6px 0 #4b0082; }
         .btn-bloodbath { background: #ff0000; border-color: #8b0000; box-shadow: 0 6px 0 #8b0000; }
         
-        #attempt-counter { position: absolute; top: 20px; left: 20px; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 0 #000; z-index: 5; }
+        .btn-menu { background: #555; border-color: #222; box-shadow: 0 6px 0 #222; }
+
     </style>
 </head>
 <body>
 
     <div id="game-wrapper">
         <canvas id="gameCanvas" width="800" height="400"></canvas>
+        
         <div id="attempt-counter">INTENTO 1</div>
+        <div id="progress-container"><div id="progress-fill"></div></div>
 
-        <!-- MENU PRINCIPAL -->
         <div id="menuScreen" class="ui-screen active">
-            <h1>GEOMETRY <span>CLONE</span></h1>
-            <p>Haz clic o presiona ESPACIO para saltar</p>
+            <h1>GEOMETRY <span>PRO</span></h1>
+            <p class="subtitle">Haz clic o presiona ESPACIO para saltar (Cooldown: 0.5s)</p>
             <div class="level-btns">
                 <button class="btn btn-stereo" onclick="startGame('stereo')">STEREO MADNESS</button>
                 <button class="btn btn-deadlocked" onclick="startGame('deadlocked')">DEADLOCKED</button>
@@ -65,103 +101,118 @@
             </div>
         </div>
 
-        <!-- PANTALLA DE MUERTE -->
         <div id="deathScreen" class="ui-screen">
-            <h1 style="color: #ff3333;">DESTRUIDO</h1>
-            <button class="btn" onclick="retryLevel()">REINTENTAR</button>
-            <button class="btn" style="background:#555; border-color:#222; box-shadow: 0 6px 0 #222;" onclick="showMenu()">MENÚ</button>
+            <h1 style="color: #ff3333; text-shadow: 0 0 20px rgba(255,0,0,0.5);">DESTRUIDO</h1>
+            <div style="display:flex;">
+                <button class="btn" onclick="retryLevel()">REINTENTAR</button>
+                <button class="btn btn-menu" onclick="showMenu()">MENÚ</button>
+            </div>
+        </div>
+
+        <div id="winScreen" class="ui-screen">
+            <h1 style="color: #00ffcc; text-shadow: 0 0 30px rgba(0,255,204,0.8);">¡NIVEL COMPLETADO!</h1>
+            <p class="subtitle" id="win-stats">Intentos: 1</p>
+            <button class="btn btn-menu" onclick="showMenu()">VOLVER AL MENÚ</button>
         </div>
     </div>
 
     <script>
         /* ==========================================================================
-           MOTOR DEL JUEGO HTML5 CANVAS (JAVASCRIPT PRO)
+           MOTOR DEL JUEGO HTML5 CANVAS (JAVASCRIPT PRO OPTIMIZADO)
            ========================================================================== */
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
         // Estado del Juego
-        let gameState = 'menu'; // menu, playing, dead
+        let gameState = 'menu'; // menu, playing, dead, win
         let currentLevelKey = '';
         let attempt = 1;
         let animationId;
+        let lastTime = 0;
 
         // Físicas Globales
         const GRAVITY = 1.2;
         const JUMP_FORCE = -14.5;
-        const GROUND_Y = 320; // Dónde está el suelo
+        const GROUND_Y = 320; 
 
-        // Definición de Niveles
+        // Definición de Niveles (Ahora con 'finish' para completarlos)
         const levels = {
-            stereo: { speed: 6, bgColor: '#0055ff', groundColor: '#0033aa', cubeColor: '#ffff00', map: [
+            stereo: { speed: 6, bgColor: '#0044cc', groundColor: '#002288', cubeColor: '#ffff00', mapLength: 3000, map: [
                 { type: 'spike', x: 600 }, { type: 'spike', x: 1000 }, { type: 'spike', x: 1040 },
                 { type: 'block', x: 1400, y: 280, w: 40, h: 40 }, { type: 'spike', x: 1600 },
-                { type: 'block', x: 2000, y: 280, w: 120, h: 40 }, { type: 'spike', x: 2040, y: 240 } // Spike on block
+                { type: 'block', x: 2000, y: 280, w: 120, h: 40 }, { type: 'spike', x: 2040, y: 240 },
+                { type: 'finish', x: 2800 } // PORTAL DE META
             ]},
-            deadlocked: { speed: 9, bgColor: '#2d004d', groundColor: '#1a0033', cubeColor: '#00ffcc', map: [
+            deadlocked: { speed: 9, bgColor: '#2d004d', groundColor: '#1a0033', cubeColor: '#00ffcc', mapLength: 2500, map: [
                 { type: 'spike', x: 500 }, { type: 'spike', x: 540 }, { type: 'spike', x: 800 },
                 { type: 'block', x: 1100, y: 280, w: 40, h: 40 }, { type: 'block', x: 1250, y: 240, w: 40, h: 40 },
-                { type: 'spike', x: 1500 }, { type: 'spike', x: 1540 }, { type: 'spike', x: 1580 }
+                { type: 'spike', x: 1500 }, { type: 'spike', x: 1540 }, { type: 'spike', x: 1580 },
+                { type: 'finish', x: 2300 } // PORTAL DE META
             ]},
-            bloodbath: { speed: 12, bgColor: '#4d0000', groundColor: '#260000', cubeColor: '#ff0000', map: [
+            bloodbath: { speed: 12, bgColor: '#330000', groundColor: '#1a0000', cubeColor: '#ff0000', mapLength: 2500, map: [
                 { type: 'spike', x: 400 }, { type: 'spike', x: 440 }, { type: 'spike', x: 480 },
                 { type: 'spike', x: 700 }, { type: 'block', x: 900, y: 280, w: 40, h: 40 }, 
-                { type: 'spike', x: 900, y: 240 }, { type: 'spike', x: 1100 }, { type: 'spike', x: 1140 }, { type: 'spike', x: 1180 }
+                { type: 'spike', x: 900, y: 240 }, { type: 'spike', x: 1100 }, { type: 'spike', x: 1140 }, { type: 'spike', x: 1180 },
+                { type: 'finish', x: 2300 } // PORTAL DE META
             ]}
         };
 
         let currentLevel = null;
         let obstacles = [];
         let particles = [];
+        let backgroundStars = [];
         let distance = 0;
 
-        // Entidad Jugador (El Cubo)
-        const player = {
-            x: 100, y: GROUND_Y - 40, size: 40, dy: 0,
-            rotation: 0, grounded: true, isDead: false
-        };
+        // Entidad Jugador
+        const player = { x: 100, y: GROUND_Y - 40, size: 40, dy: 0, rotation: 0, grounded: true, isDead: false };
 
-        // Inputs
-        let isJumping = false;
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') handleJumpInput();
-        });
+        // SISTEMA DE SALTO CON RESTRICCIÓN DE TIEMPO (0.5 SEGUNDOS)
+        let lastJumpTime = 0;
+
+        window.addEventListener('keydown', (e) => { if (e.code === 'Space') handleJumpInput(); });
         window.addEventListener('mousedown', handleJumpInput);
         window.addEventListener('touchstart', handleJumpInput);
 
         function handleJumpInput() {
+            let currentTime = Date.now();
+            
             if (gameState === 'playing' && player.grounded && !player.isDead) {
-                player.dy = JUMP_FORCE;
-                player.grounded = false;
+                // CONDICIÓN: Han pasado al menos 500ms (0.5 segundos) desde el último salto
+                if (currentTime - lastJumpTime >= 500) {
+                    player.dy = JUMP_FORCE;
+                    player.grounded = false;
+                    lastJumpTime = currentTime;
+                }
             } else if (gameState === 'dead') {
                 retryLevel();
+            } else if (gameState === 'win') {
+                showMenu();
             }
         }
 
-        // --- SISTEMA DE PARTÍCULAS (Rastro del cubo) ---
+        // --- SISTEMAS DE EFECTOS VISUALES OPTIMIZADOS ---
+        function initStars() {
+            backgroundStars = [];
+            for(let i=0; i<30; i++) {
+                backgroundStars.push({ x: Math.random()*800, y: Math.random()*GROUND_Y, size: Math.random()*2+1 });
+            }
+        }
+
+        function drawStars() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            backgroundStars.forEach(s => {
+                s.x -= currentLevel.speed * 0.1; // Efecto Parallax
+                if(s.x < 0) s.x = 800;
+                ctx.fillRect(s.x, s.y, s.size, s.size);
+            });
+        }
+
         function createTrail() {
             if(!player.grounded || player.isDead) return;
             particles.push({
                 x: player.x - 5, y: player.y + player.size,
-                size: Math.random() * 8 + 4,
-                life: 1, color: currentLevel.cubeColor
+                size: Math.random() * 8 + 4, life: 1, color: currentLevel.cubeColor
             });
-        }
-        function updateParticles() {
-            for(let i = particles.length -1; i >= 0; i--) {
-                let p = particles[i];
-                p.x -= currentLevel.speed; // Mover con el mundo
-                p.life -= 0.05;
-                if(p.life <= 0) particles.splice(i, 1);
-            }
-        }
-        function drawParticles() {
-            particles.forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.life;
-                ctx.fillRect(p.x, p.y - p.size, p.size, p.size);
-            });
-            ctx.globalAlpha = 1.0; // Reset
         }
 
         // --- LÓGICA DEL JUEGO ---
@@ -169,6 +220,8 @@
             currentLevelKey = levelKey;
             attempt = 1;
             document.getElementById('menuScreen').classList.remove('active');
+            document.getElementById('attempt-counter').style.display = 'block';
+            document.getElementById('progress-container').style.display = 'block';
             initLevel();
         }
 
@@ -181,7 +234,10 @@
         function showMenu() {
             gameState = 'menu';
             document.getElementById('deathScreen').classList.remove('active');
-            document.getElementById('menuScreen').classList.active = 'active';
+            document.getElementById('winScreen').classList.remove('active');
+            document.getElementById('menuScreen').classList.add('active'); // ARREGLADO
+            document.getElementById('attempt-counter').style.display = 'none';
+            document.getElementById('progress-container').style.display = 'none';
             cancelAnimationFrame(animationId);
         }
 
@@ -189,16 +245,13 @@
             currentLevel = levels[currentLevelKey];
             gameState = 'playing';
             player.y = GROUND_Y - player.size;
-            player.dy = 0;
-            player.rotation = 0;
-            player.isDead = false;
-            player.grounded = true;
-            distance = 0;
-            particles = [];
+            player.dy = 0; player.rotation = 0; player.isDead = false; player.grounded = true;
+            distance = 0; particles = []; lastJumpTime = 0;
             
-            // Clonar mapa profundo
+            initStars();
             obstacles = JSON.parse(JSON.stringify(currentLevel.map));
             document.getElementById('attempt-counter').innerText = `INTENTO ${attempt}`;
+            document.getElementById('progress-fill').style.width = '0%';
             
             if(animationId) cancelAnimationFrame(animationId);
             gameLoop();
@@ -208,22 +261,24 @@
             player.isDead = true;
             gameState = 'dead';
             document.getElementById('deathScreen').classList.add('active');
-            // Efecto de explosión de partículas
-            for(let i=0; i<20; i++) {
+            for(let i=0; i<25; i++) {
                 particles.push({
                     x: player.x + 20, y: player.y + 20, size: Math.random()*10+5,
                     life: 1, color: currentLevel.cubeColor,
-                    dx: (Math.random()-0.5)*15, dy: (Math.random()-0.5)*15
+                    dx: (Math.random()-0.5)*18, dy: (Math.random()-0.5)*18
                 });
             }
         }
 
-        // Detección de Colisiones (Hitboxes profesionales)
-        function checkCollisions() {
-            // Hitbox del jugador ligeramente más pequeña para hacerlo justo
-            const pBox = { x: player.x + 4, y: player.y + 4, w: player.size - 8, h: player.size - 8 };
+        function winLevel() {
+            gameState = 'win';
+            document.getElementById('win-stats').innerText = `Intentos totales: ${attempt}`;
+            document.getElementById('winScreen').classList.add('active');
+        }
 
-            player.grounded = false; // Asumir en el aire a menos que colisione con suelo/bloque
+        function checkCollisions() {
+            const pBox = { x: player.x + 4, y: player.y + 4, w: player.size - 8, h: player.size - 8 };
+            player.grounded = false;
 
             for (let obs of obstacles) {
                 let ox = obs.x - distance;
@@ -231,146 +286,137 @@
                 let ow = obs.type === 'block' ? obs.w : 40;
                 let oh = obs.type === 'block' ? obs.h : 40;
 
-                // Solo verificar obstáculos en pantalla
                 if (ox > 800 || ox + ow < 0) continue;
 
+                // COLISIÓN META
+                if (obs.type === 'finish') {
+                    if (pBox.x + pBox.w > ox + 20) { winLevel(); return; }
+                    continue;
+                }
+
                 if (obs.type === 'spike') {
-                    // Hitbox triangular simple pero justa
                     let hitboxDist = 12;
                     if (pBox.x < ox + ow - hitboxDist && pBox.x + pBox.w > ox + hitboxDist &&
                         pBox.y < oy + oh && pBox.y + pBox.h > oy + hitboxDist) {
                         die(); return;
                     }
                 } else if (obs.type === 'block') {
-                    // Colisión con bloque sólido
                     if (pBox.x < ox + ow && pBox.x + pBox.w > ox && pBox.y < oy + oh && pBox.y + pBox.h > oy) {
-                        // ¿Chocó por arriba (Aterrizó) o por un lado (Muerte)?
                         if (player.dy >= 0 && player.y + player.size - player.dy - 2 <= oy) {
                             player.y = oy - player.size;
-                            player.dy = 0;
-                            player.grounded = true;
-                            // Alinear rotación a múltiplo de 90
+                            player.dy = 0; player.grounded = true;
                             player.rotation = Math.round(player.rotation / 90) * 90;
-                        } else {
-                            // Chocó por el lado izquierdo del bloque
-                            die(); return;
-                        }
+                        } else { die(); return; }
                     }
                 }
             }
 
-            // Suelo Base
             if (player.y >= GROUND_Y - player.size) {
                 player.y = GROUND_Y - player.size;
-                player.dy = 0;
-                player.grounded = true;
+                player.dy = 0; player.grounded = true;
                 player.rotation = Math.round(player.rotation / 90) * 90;
             }
         }
 
         function update() {
             if (player.isDead) {
-                // Actualizar explosión
                 particles.forEach(p => { p.x += p.dx || 0; p.y += p.dy || 0; p.life -= 0.02; });
                 return;
             }
+            if (gameState === 'win') return; // Congelar al ganar
 
-            // Físicas del Jugador
-            player.dy += GRAVITY;
-            player.y += player.dy;
-
-            // Mover el Mundo
+            player.dy += GRAVITY; player.y += player.dy;
             distance += currentLevel.speed;
 
-            // Rotación al saltar
-            if (!player.grounded) {
-                player.rotation += 8; // Velocidad de giro
+            // Actualizar barra de progreso
+            let progress = Math.min((distance / currentLevel.mapLength) * 100, 100);
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+
+            if (!player.grounded) player.rotation += 8;
+            if(distance % 10 < currentLevel.speed) createTrail();
+
+            for(let i = particles.length -1; i >= 0; i--) {
+                let p = particles[i];
+                p.x -= currentLevel.speed;
+                p.life -= 0.05;
+                if(p.life <= 0) particles.splice(i, 1);
             }
 
-            if(distance % 10 < currentLevel.speed) createTrail();
-            updateParticles();
             checkCollisions();
         }
 
         function draw() {
-            // Fondo
+            // Fondo con estrellas
             ctx.fillStyle = currentLevel ? currentLevel.bgColor : '#111';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if(currentLevel) drawStars();
 
             if (currentLevel) {
-                // Suelo inferior
                 ctx.fillStyle = currentLevel.groundColor;
                 ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
-                // Línea del suelo superior
-                ctx.fillStyle = '#ffffff';
+                // Línea brillante del suelo
+                ctx.shadowBlur = 10; ctx.shadowColor = '#ffffff'; ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, GROUND_Y, canvas.width, 3);
+                ctx.shadowBlur = 0; // Reset
             }
 
-            drawParticles();
+            // Dibujar Partículas
+            particles.forEach(p => {
+                ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillRect(p.x, p.y - p.size, p.size, p.size);
+            });
+            ctx.globalAlpha = 1.0;
 
             // Dibujar Obstáculos
             obstacles.forEach(obs => {
                 let ox = obs.x - distance;
-                if (ox > 800 || ox < -100) return; // Fuera de pantalla
+                if (ox > 800 || ox < -100) return;
 
-                if (obs.type === 'spike') {
+                if (obs.type === 'finish') {
+                    // Dibujar Portal de Meta
+                    ctx.shadowBlur = 20; ctx.shadowColor = '#00ffcc';
+                    ctx.fillStyle = '#00ffcc'; ctx.fillRect(ox, GROUND_Y - 150, 20, 150);
+                    ctx.fillStyle = '#ffffff'; ctx.fillRect(ox + 5, GROUND_Y - 150, 10, 150);
+                    ctx.shadowBlur = 0;
+                } else if (obs.type === 'spike') {
                     let oy = obs.y !== undefined ? obs.y : GROUND_Y - 40;
-                    ctx.fillStyle = '#ffffff'; // Interior del pincho
-                    ctx.beginPath();
-                    ctx.moveTo(ox + 20, oy); // Punta
-                    ctx.lineTo(ox + 40, oy + 40); // Derecha
-                    ctx.lineTo(ox, oy + 40); // Izquierda
-                    ctx.closePath();
-                    ctx.fill();
-                    // Borde negro del pincho
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = '#000';
-                    ctx.stroke();
+                    ctx.fillStyle = '#111'; ctx.beginPath();
+                    ctx.moveTo(ox + 20, oy); ctx.lineTo(ox + 40, oy + 40); ctx.lineTo(ox, oy + 40); ctx.closePath(); ctx.fill();
+                    ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
                 } else if (obs.type === 'block') {
                     let oy = obs.y !== undefined ? obs.y : GROUND_Y - obs.h;
-                    ctx.fillStyle = '#333333'; // Centro bloque
-                    ctx.fillRect(ox, oy, obs.w, obs.h);
-                    ctx.lineWidth = 3; // Borde bloque
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.strokeRect(ox, oy, obs.w, obs.h);
+                    ctx.fillStyle = '#222'; ctx.fillRect(ox, oy, obs.w, obs.h);
+                    ctx.lineWidth = 3; ctx.strokeStyle = '#fff'; ctx.strokeRect(ox, oy, obs.w, obs.h);
                 }
             });
 
-            // Dibujar Jugador (Cubo)
+            // Dibujar Jugador
             if (!player.isDead) {
                 ctx.save();
                 ctx.translate(player.x + player.size / 2, player.y + player.size / 2);
                 ctx.rotate(player.rotation * Math.PI / 180);
                 
-                // Color interior
+                // Resplandor del Cubo
+                ctx.shadowBlur = 15; ctx.shadowColor = currentLevel.cubeColor;
                 ctx.fillStyle = currentLevel.cubeColor;
                 ctx.fillRect(-player.size / 2, -player.size / 2, player.size, player.size);
+                ctx.shadowBlur = 0;
                 
-                // Borde del cubo
-                ctx.lineWidth = 3;
-                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 3; ctx.strokeStyle = '#ffffff';
                 ctx.strokeRect(-player.size / 2, -player.size / 2, player.size, player.size);
                 
-                // Cara/Ojo del cubo (Detalle Pro)
                 ctx.fillStyle = '#000';
                 ctx.fillRect(-player.size/4, -player.size/4, player.size/4, player.size/4);
-
                 ctx.restore();
             }
         }
 
         function gameLoop() {
-            if (gameState !== 'menu') {
-                update();
-                draw();
-            }
+            if (gameState !== 'menu') { update(); draw(); }
             animationId = requestAnimationFrame(gameLoop);
         }
 
-        // Dibujo Inicial de Fondo para el menú
-        ctx.fillStyle = '#111';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+        ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 </body>
 </html>
