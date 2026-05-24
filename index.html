@@ -3,423 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fernan Saw Game - Clon Profesional</title>
+    <title>Geometry Dash - Clon Profesional HTML5</title>
     <style>
         /* ==========================================================================
-           ESTILOS GENERALES (PRO CSS) - Interfaz de Inkagames / Saw
+           ESTILOS (INTERFAZ Y CONTENEDOR)
            ========================================================================== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        body {
-            background-color: #111;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Contenedor Principal del Juego (Resolución clásica de juego Flash) */
-        #game-container {
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial Black', sans-serif; user-select: none; }
+        body { background-color: #111; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; }
+        
+        #game-wrapper {
+            position: relative;
             width: 800px;
-            height: 600px;
-            background-color: #000;
-            position: relative;
-            border: 4px solid #333;
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
-            overflow: hidden;
+            height: 400px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            border: 4px solid #222;
         }
 
-        /* Pantalla de Inicio / Menu */
-        .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-size: cover;
-            background-position: center;
-        }
+        canvas { display: block; width: 100%; height: 100%; }
 
-        .screen.active {
-            display: flex;
+        /* Pantallas de Interfaz */
+        .ui-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(3px); z-index: 10; display: none;
         }
+        .ui-screen.active { display: flex; }
 
-        #menu-screen {
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), repeating-linear-gradient(0deg, #111, #111 2px, #1a1a1a 2px, #1a1a1a 4px);
-        }
+        h1 { font-size: 50px; text-transform: uppercase; margin-bottom: 10px; text-shadow: 4px 4px 0 #000; letter-spacing: 2px; }
+        h1 span { color: #00ffcc; }
 
-        .title-saw {
-            font-size: 48px;
-            color: #ff0000;
-            text-transform: uppercase;
-            text-shadow: 3px 3px 0px #000, 0 0 10px rgba(255, 0, 0, 0.8);
-            margin-bottom: 5px;
-            font-weight: bold;
+        .btn {
+            background: linear-gradient(to bottom, #4CAF50, #2E7D32);
+            border: 3px solid #1B5E20; color: white; padding: 15px 40px; font-size: 24px;
+            cursor: pointer; border-radius: 8px; margin: 10px; text-transform: uppercase;
+            box-shadow: 0 6px 0 #1B5E20; transition: all 0.1s;
         }
-
-        .title-fernan {
-            font-size: 32px;
-            color: #00ff00;
-            margin-bottom: 40px;
-            font-family: sans-serif;
-            font-weight: 900;
-            transform: rotate(-3deg);
-        }
-
-        .btn-custom {
-            padding: 15px 40px;
-            font-size: 20px;
-            background-color: #aa0000;
-            color: white;
-            border: 2px solid #ff0000;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            box-shadow: 0 5px 0 #550000;
-            transition: all 0.1s ease;
-        }
-
-        .btn-custom:hover {
-            background-color: #cc0000;
-            box-shadow: 0 3px 0 #770000;
-            transform: translateY(2px);
-        }
-
-        /* Escenario del Juego */
-        #game-screen {
-            background-color: #2c3e50;
-        }
-
-        .room {
-            width: 100%;
-            height: 480px; /* Espacio para la escena */
-            position: relative;
-            background-size: cover;
-            display: none;
-        }
-
-        .room.active {
-            display: block;
-        }
-
-        /* Habitaciones (Arte CSS Temporal de alta fidelidad) */
-        #room1 {
-            background: radial-gradient(circle, #555 0%, #222 100%);
-            border-bottom: 20px solid #111;
-        }
-
-        #room2 {
-            background: radial-gradient(circle, #445544 0%, #112211 100%);
-            border-bottom: 20px solid #051105;
-        }
-
-        /* Elementos Interactivos (Objetos/Personajes) */
-        .interactive {
-            position: absolute;
-            cursor: pointer;
-            transition: filter 0.2s;
-        }
-
-        .interactive:hover {
-            filter: drop-shadow(0 0 8px #00ff00) brightness(1.2);
-        }
-
-        /* Sprites / Elementos Visuales */
-        #fernan-player {
-            width: 100px;
-            height: 180px;
-            background-color: #00ff00; /* Representación de Fernanfloo con su gorra */
-            position: absolute;
-            bottom: 20px;
-            left: 100px;
-            border-radius: 10px;
-            border: 3px solid #000;
-            transition: left 0.5s ease;
-        }
+        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #1B5E20; }
         
-        #fernan-player::before {
-            content: "¡CARAJO!";
-            position: absolute;
-            top: -15px;
-            left: 15px;
-            background: #fff;
-            color: #000;
-            font-size: 10px;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-weight: bold;
-        }
-
-        .item-key {
-            width: 40px;
-            height: 20px;
-            background-color: #ffd700;
-            bottom: 30px;
-            right: 200px;
-            border-radius: 5px;
-        }
-
-        .pigsaw {
-            width: 80px;
-            height: 120px;
-            background-color: #ffffff;
-            border: 4px solid #ff0000;
-            bottom: 40px;
-            right: 100px;
-            border-radius: 5px;
-        }
-
-        /* Flechas de Navegación */
-        .arrow {
-            position: absolute;
-            bottom: 50%;
-            width: 50px;
-            height: 50px;
-            background-color: rgba(255,255,255,0.2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 30px;
-            color: white;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .arrow:hover { background-color: rgba(255,255,255,0.5); }
-        .arrow-right { right: 20px; }
-        .arrow-left { left: 20px; }
-
-        /* Barra de Interfaz Inferior (Inventario y Diálogos) */
-        #ui-bar {
-            width: 100%;
-            height: 120px;
-            background-color: #151515;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            border-top: 4px solid #333;
-            display: flex;
-            padding: 10px;
-        }
-
-        #inventory-panel {
-            width: 300px;
-            height: 100%;
-            border-right: 2px solid #333;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .inventory-title {
-            font-size: 12px;
-            color: #aaa;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-
-        .inventory-slots {
-            display: flex;
-            gap: 8px;
-        }
-
-        .slot {
-            width: 60px;
-            height: 60px;
-            background-color: #222;
-            border: 2px dashed #444;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-        }
+        .level-btns { display: flex; gap: 15px; margin-top: 20px; }
+        .btn-stereo { background: #1e90ff; border-color: #00008b; box-shadow: 0 6px 0 #00008b; }
+        .btn-deadlocked { background: #8a2be2; border-color: #4b0082; box-shadow: 0 6px 0 #4b0082; }
+        .btn-bloodbath { background: #ff0000; border-color: #8b0000; box-shadow: 0 6px 0 #8b0000; }
         
-        .slot.active {
-            border-color: #00ff00;
-            background-color: #1a2f1a;
-        }
-
-        #dialogue-panel {
-            flex: 1;
-            padding-left: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        #dialogue-text {
-            font-size: 16px;
-            color: #00ff00; /* Verde Fernan */
-            line-height: 1.4;
-        }
-
-        /* Puerta del Laberinto */
-        .door {
-            width: 80px;
-            height: 160px;
-            background-color: #5c3a21;
-            position: absolute;
-            bottom: 20px;
-            left: 400px;
-            border: 4px solid #2e1c0c;
-        }
-
+        #attempt-counter { position: absolute; top: 20px; left: 20px; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 0 #000; z-index: 5; }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        
-        <!-- PANTALLA DE MENU -->
-        <div id="menu-screen" class="screen active">
-            <div class="title-saw">FERNAN FLOO</div>
-            <div class="title-fernan">SAW GAME CLONE</div>
-            <button class="btn-custom" onclick="startGame()">JUGAR</button>
+    <div id="game-wrapper">
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        <div id="attempt-counter">INTENTO 1</div>
+
+        <!-- MENU PRINCIPAL -->
+        <div id="menuScreen" class="ui-screen active">
+            <h1>GEOMETRY <span>CLONE</span></h1>
+            <p>Haz clic o presiona ESPACIO para saltar</p>
+            <div class="level-btns">
+                <button class="btn btn-stereo" onclick="startGame('stereo')">STEREO MADNESS</button>
+                <button class="btn btn-deadlocked" onclick="startGame('deadlocked')">DEADLOCKED</button>
+                <button class="btn btn-bloodbath" onclick="startGame('bloodbath')">BLOODBATH</button>
+            </div>
         </div>
 
-        <!-- PANTALLA PRINCIPAL DEL JUEGO -->
-        <div id="game-screen" class="screen">
-            
-            <!-- HABITACIÓN 1 -->
-            <div id="room1" class="room active">
-                <!-- Puerta cerrada bloqueando el paso -->
-                <div class="interactive door" onclick="interactDoor()"></div>
-                <!-- Llave tirada en el suelo -->
-                <div id="game-key" class="interactive item-key" onclick="pickKey()"></div>
-                
-                <!-- Flecha para ir a la derecha -->
-                <div class="arrow arrow-right" onclick="changeRoom('room2')">➔</div>
-            </div>
-
-            <!-- HABITACIÓN 2 (PIGSAW) -->
-            <div id="room2" class="room">
-                <!-- Pigsaw en su triciclo / parado -->
-                <div class="interactive pigsaw" onclick="talkToPigsaw()"></div>
-                
-                <!-- Flecha para regresar a la izquierda -->
-                <div class="arrow arrow-left" onclick="changeRoom('room1')">Layout ➔</div>
-            </div>
-
-            <!-- AVATAR DE FERNANFLOO (PERSISTENTE EN LA ESCENA) -->
-            <div id="fernan-player"></div>
-
-            <!-- BARRA DE INTERFAZ INFERIOR -->
-            <div id="ui-bar">
-                <!-- Panel de Objetos -->
-                <div id="inventory-panel">
-                    <div class="inventory-title">Inventario</div>
-                    <div class="inventory-slots">
-                        <div id="slot1" class="slot" onclick="selectItem('Llave Oxidada')"></div>
-                        <div class="slot"></div>
-                        <div class="slot"></div>
-                        <div class="slot"></div>
-                    </div>
-                </div>
-                <!-- Panel de Texto de Diálogo -->
-                <div id="dialogue-panel">
-                    <div id="dialogue-text">Pigsaw te ha atrapado... Busca una forma de escapar.</div>
-                </div>
-            </div>
-
+        <!-- PANTALLA DE MUERTE -->
+        <div id="deathScreen" class="ui-screen">
+            <h1 style="color: #ff3333;">DESTRUIDO</h1>
+            <button class="btn" onclick="retryLevel()">REINTENTAR</button>
+            <button class="btn" style="background:#555; border-color:#222; box-shadow: 0 6px 0 #222;" onclick="showMenu()">MENÚ</button>
         </div>
     </div>
 
-    <!-- ==========================================================================
-       LÓGICA DEL JUEGO (JAVASCRIPT) - Motor de Aventura Gráfica
-       ========================================================================== */ -->
     <script>
-        // Estado del Juego Global
-        let gameState = {
-            hasKey: false,
-            doorUnlocked: false,
-            selectedItem: null,
-            currentRoom: 'room1'
+        /* ==========================================================================
+           MOTOR DEL JUEGO HTML5 CANVAS (JAVASCRIPT PRO)
+           ========================================================================== */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Estado del Juego
+        let gameState = 'menu'; // menu, playing, dead
+        let currentLevelKey = '';
+        let attempt = 1;
+        let animationId;
+
+        // Físicas Globales
+        const GRAVITY = 1.2;
+        const JUMP_FORCE = -14.5;
+        const GROUND_Y = 320; // Dónde está el suelo
+
+        // Definición de Niveles
+        const levels = {
+            stereo: { speed: 6, bgColor: '#0055ff', groundColor: '#0033aa', cubeColor: '#ffff00', map: [
+                { type: 'spike', x: 600 }, { type: 'spike', x: 1000 }, { type: 'spike', x: 1040 },
+                { type: 'block', x: 1400, y: 280, w: 40, h: 40 }, { type: 'spike', x: 1600 },
+                { type: 'block', x: 2000, y: 280, w: 120, h: 40 }, { type: 'spike', x: 2040, y: 240 } // Spike on block
+            ]},
+            deadlocked: { speed: 9, bgColor: '#2d004d', groundColor: '#1a0033', cubeColor: '#00ffcc', map: [
+                { type: 'spike', x: 500 }, { type: 'spike', x: 540 }, { type: 'spike', x: 800 },
+                { type: 'block', x: 1100, y: 280, w: 40, h: 40 }, { type: 'block', x: 1250, y: 240, w: 40, h: 40 },
+                { type: 'spike', x: 1500 }, { type: 'spike', x: 1540 }, { type: 'spike', x: 1580 }
+            ]},
+            bloodbath: { speed: 12, bgColor: '#4d0000', groundColor: '#260000', cubeColor: '#ff0000', map: [
+                { type: 'spike', x: 400 }, { type: 'spike', x: 440 }, { type: 'spike', x: 480 },
+                { type: 'spike', x: 700 }, { type: 'block', x: 900, y: 280, w: 40, h: 40 }, 
+                { type: 'spike', x: 900, y: 240 }, { type: 'spike', x: 1100 }, { type: 'spike', x: 1140 }, { type: 'spike', x: 1180 }
+            ]}
         };
 
-        // Iniciar el Juego
-        function startGame() {
-            document.getElementById('menu-screen').classList.remove('active');
-            document.getElementById('game-screen').classList.add('active');
-            showDialogue("Fernan: ¡Oh no! ¿Dónde estoy? Ese muñeco feo me durmió... ¡Tengo que escapar, carajo!");
-        }
+        let currentLevel = null;
+        let obstacles = [];
+        let particles = [];
+        let distance = 0;
 
-        // Sistema de Diálogos Dinámicos
-        function showDialogue(text, color = "#00ff00") {
-            const dialogueText = document.getElementById('dialogue-text');
-            dialogueText.style.color = color;
-            dialogueText.innerText = text;
-        }
+        // Entidad Jugador (El Cubo)
+        const player = {
+            x: 100, y: GROUND_Y - 40, size: 40, dy: 0,
+            rotation: 0, grounded: true, isDead: false
+        };
 
-        // Navegación entre habitaciones estilo Point and Click
-        function changeRoom(roomId) {
-            document.querySelectorAll('.room').forEach(room => room.classList.remove('active'));
-            document.getElementById(roomId).classList.add('active');
-            gameState.currentRoom = roomId;
+        // Inputs
+        let isJumping = false;
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') handleJumpInput();
+        });
+        window.addEventListener('mousedown', handleJumpInput);
+        window.addEventListener('touchstart', handleJumpInput);
 
-            // Mover a Fernan al lado correspondiente de manera elegante
-            const fernan = document.getElementById('fernan-player');
-            if(roomId === 'room2') {
-                fernan.style.left = "60px";
-                showDialogue("Fernan: Mira quién está ahí... el payaso de Saw.");
-            } else {
-                fernan.style.left = "100px";
+        function handleJumpInput() {
+            if (gameState === 'playing' && player.grounded && !player.isDead) {
+                player.dy = JUMP_FORCE;
+                player.grounded = false;
+            } else if (gameState === 'dead') {
+                retryLevel();
             }
         }
 
-        // Mecánica: Recoger Objeto
-        function pickKey() {
-            gameState.hasKey = true;
-            document.getElementById('game-key').style.display = 'none';
+        // --- SISTEMA DE PARTÍCULAS (Rastro del cubo) ---
+        function createTrail() {
+            if(!player.grounded || player.isDead) return;
+            particles.push({
+                x: player.x - 5, y: player.y + player.size,
+                size: Math.random() * 8 + 4,
+                life: 1, color: currentLevel.cubeColor
+            });
+        }
+        function updateParticles() {
+            for(let i = particles.length -1; i >= 0; i--) {
+                let p = particles[i];
+                p.x -= currentLevel.speed; // Mover con el mundo
+                p.life -= 0.05;
+                if(p.life <= 0) particles.splice(i, 1);
+            }
+        }
+        function drawParticles() {
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.fillRect(p.x, p.y - p.size, p.size, p.size);
+            });
+            ctx.globalAlpha = 1.0; // Reset
+        }
+
+        // --- LÓGICA DEL JUEGO ---
+        function startGame(levelKey) {
+            currentLevelKey = levelKey;
+            attempt = 1;
+            document.getElementById('menuScreen').classList.remove('active');
+            initLevel();
+        }
+
+        function retryLevel() {
+            attempt++;
+            document.getElementById('deathScreen').classList.remove('active');
+            initLevel();
+        }
+
+        function showMenu() {
+            gameState = 'menu';
+            document.getElementById('deathScreen').classList.remove('active');
+            document.getElementById('menuScreen').classList.active = 'active';
+            cancelAnimationFrame(animationId);
+        }
+
+        function initLevel() {
+            currentLevel = levels[currentLevelKey];
+            gameState = 'playing';
+            player.y = GROUND_Y - player.size;
+            player.dy = 0;
+            player.rotation = 0;
+            player.isDead = false;
+            player.grounded = true;
+            distance = 0;
+            particles = [];
             
-            // Renderizar en el inventario de forma visual
-            const slot1 = document.getElementById('slot1');
-            slot1.innerHTML = `<div style="width:30px; height:15px; background:#ffd700; border-radius:3px;"></div>`;
+            // Clonar mapa profundo
+            obstacles = JSON.parse(JSON.stringify(currentLevel.map));
+            document.getElementById('attempt-counter').innerText = `INTENTO ${attempt}`;
             
-            showDialogue("Fernan: ¡Encontré una llave vieja! Seguro abre algo por aquí.");
+            if(animationId) cancelAnimationFrame(animationId);
+            gameLoop();
         }
 
-        // Mecánica: Seleccionar objeto del inventario
-        function selectItem(item) {
-            if (item === 'Llave Oxidada' && gameState.hasKey) {
-                gameState.selectedItem = item;
-                document.getElementById('slot1').classList.add('active');
-                showDialogue("Sistema: Has seleccionado 'Llave Oxidada'. Úsala en la puerta.");
+        function die() {
+            player.isDead = true;
+            gameState = 'dead';
+            document.getElementById('deathScreen').classList.add('active');
+            // Efecto de explosión de partículas
+            for(let i=0; i<20; i++) {
+                particles.push({
+                    x: player.x + 20, y: player.y + 20, size: Math.random()*10+5,
+                    life: 1, color: currentLevel.cubeColor,
+                    dx: (Math.random()-0.5)*15, dy: (Math.random()-0.5)*15
+                });
             }
         }
 
-        // Mecánica: Interactuar con la Puerta
-        function interactDoor() {
-            if (gameState.doorUnlocked) {
-                showDialogue("Fernan: ¡Ya está abierta! ¡He escapado! ¡GANASTE CRACK!");
-                setTimeout(() => {
-                    alert("¡Felicidades! Lograste superar la primera fase del Fernan Saw Game.");
-                    location.reload();
-                }, 1000);
-            } else if (gameState.selectedItem === 'Llave Oxidada') {
-                gameState.doorUnlocked = true;
-                gameState.selectedItem = null;
-                document.getElementById('slot1').classList.remove('active');
-                document.getElementById('slot1').innerHTML = ''; // Quitar del inventario
-                showDialogue("Fernan: ¡Perfecto! La llave encaja perfectamente. La puerta está abierta.");
-            } else {
-                showDialogue("Fernan: La puerta está trancada con un candado muy fuerte. Necesito algo.");
+        // Detección de Colisiones (Hitboxes profesionales)
+        function checkCollisions() {
+            // Hitbox del jugador ligeramente más pequeña para hacerlo justo
+            const pBox = { x: player.x + 4, y: player.y + 4, w: player.size - 8, h: player.size - 8 };
+
+            player.grounded = false; // Asumir en el aire a menos que colisione con suelo/bloque
+
+            for (let obs of obstacles) {
+                let ox = obs.x - distance;
+                let oy = obs.y !== undefined ? obs.y : GROUND_Y - 40;
+                let ow = obs.type === 'block' ? obs.w : 40;
+                let oh = obs.type === 'block' ? obs.h : 40;
+
+                // Solo verificar obstáculos en pantalla
+                if (ox > 800 || ox + ow < 0) continue;
+
+                if (obs.type === 'spike') {
+                    // Hitbox triangular simple pero justa
+                    let hitboxDist = 12;
+                    if (pBox.x < ox + ow - hitboxDist && pBox.x + pBox.w > ox + hitboxDist &&
+                        pBox.y < oy + oh && pBox.y + pBox.h > oy + hitboxDist) {
+                        die(); return;
+                    }
+                } else if (obs.type === 'block') {
+                    // Colisión con bloque sólido
+                    if (pBox.x < ox + ow && pBox.x + pBox.w > ox && pBox.y < oy + oh && pBox.y + pBox.h > oy) {
+                        // ¿Chocó por arriba (Aterrizó) o por un lado (Muerte)?
+                        if (player.dy >= 0 && player.y + player.size - player.dy - 2 <= oy) {
+                            player.y = oy - player.size;
+                            player.dy = 0;
+                            player.grounded = true;
+                            // Alinear rotación a múltiplo de 90
+                            player.rotation = Math.round(player.rotation / 90) * 90;
+                        } else {
+                            // Chocó por el lado izquierdo del bloque
+                            die(); return;
+                        }
+                    }
+                }
+            }
+
+            // Suelo Base
+            if (player.y >= GROUND_Y - player.size) {
+                player.y = GROUND_Y - player.size;
+                player.dy = 0;
+                player.grounded = true;
+                player.rotation = Math.round(player.rotation / 90) * 90;
             }
         }
 
-        // Mecánica: Hablar con el Antagonista (Pigsaw)
-        function talkToPigsaw() {
-            showDialogue("Pigsaw: Hola Fernanfloo. Quiero jugar un juego... Tu preciado botón de YouTube está tras esa puerta.", "#ff0000");
+        function update() {
+            if (player.isDead) {
+                // Actualizar explosión
+                particles.forEach(p => { p.x += p.dx || 0; p.y += p.dy || 0; p.life -= 0.02; });
+                return;
+            }
+
+            // Físicas del Jugador
+            player.dy += GRAVITY;
+            player.y += player.dy;
+
+            // Mover el Mundo
+            distance += currentLevel.speed;
+
+            // Rotación al saltar
+            if (!player.grounded) {
+                player.rotation += 8; // Velocidad de giro
+            }
+
+            if(distance % 10 < currentLevel.speed) createTrail();
+            updateParticles();
+            checkCollisions();
         }
+
+        function draw() {
+            // Fondo
+            ctx.fillStyle = currentLevel ? currentLevel.bgColor : '#111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (currentLevel) {
+                // Suelo inferior
+                ctx.fillStyle = currentLevel.groundColor;
+                ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
+                // Línea del suelo superior
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, GROUND_Y, canvas.width, 3);
+            }
+
+            drawParticles();
+
+            // Dibujar Obstáculos
+            obstacles.forEach(obs => {
+                let ox = obs.x - distance;
+                if (ox > 800 || ox < -100) return; // Fuera de pantalla
+
+                if (obs.type === 'spike') {
+                    let oy = obs.y !== undefined ? obs.y : GROUND_Y - 40;
+                    ctx.fillStyle = '#ffffff'; // Interior del pincho
+                    ctx.beginPath();
+                    ctx.moveTo(ox + 20, oy); // Punta
+                    ctx.lineTo(ox + 40, oy + 40); // Derecha
+                    ctx.lineTo(ox, oy + 40); // Izquierda
+                    ctx.closePath();
+                    ctx.fill();
+                    // Borde negro del pincho
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#000';
+                    ctx.stroke();
+                } else if (obs.type === 'block') {
+                    let oy = obs.y !== undefined ? obs.y : GROUND_Y - obs.h;
+                    ctx.fillStyle = '#333333'; // Centro bloque
+                    ctx.fillRect(ox, oy, obs.w, obs.h);
+                    ctx.lineWidth = 3; // Borde bloque
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.strokeRect(ox, oy, obs.w, obs.h);
+                }
+            });
+
+            // Dibujar Jugador (Cubo)
+            if (!player.isDead) {
+                ctx.save();
+                ctx.translate(player.x + player.size / 2, player.y + player.size / 2);
+                ctx.rotate(player.rotation * Math.PI / 180);
+                
+                // Color interior
+                ctx.fillStyle = currentLevel.cubeColor;
+                ctx.fillRect(-player.size / 2, -player.size / 2, player.size, player.size);
+                
+                // Borde del cubo
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#ffffff';
+                ctx.strokeRect(-player.size / 2, -player.size / 2, player.size, player.size);
+                
+                // Cara/Ojo del cubo (Detalle Pro)
+                ctx.fillStyle = '#000';
+                ctx.fillRect(-player.size/4, -player.size/4, player.size/4, player.size/4);
+
+                ctx.restore();
+            }
+        }
+
+        function gameLoop() {
+            if (gameState !== 'menu') {
+                update();
+                draw();
+            }
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // Dibujo Inicial de Fondo para el menú
+        ctx.fillStyle = '#111';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     </script>
 </body>
 </html>
