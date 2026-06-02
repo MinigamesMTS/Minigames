@@ -1,422 +1,272 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry Dash - Edición Profesional</title>
-    <style>
-        /* ==========================================================================
-           ESTILOS (INTERFAZ Y CONTENEDOR) - AHORA CON EFECTOS NEON Y ANIMACIONES
-           ========================================================================== */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial Black', sans-serif; user-select: none; }
-        
-        /* Fondo animado oscuro para la página */
-        body { 
-            background: radial-gradient(circle at center, #222 0%, #000 100%); 
-            display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; 
-        }
-        
-        #game-wrapper {
-            position: relative;
-            width: 800px;
-            height: 400px;
-            box-shadow: 0 0 40px rgba(0, 255, 204, 0.2), 0 0 15px rgba(255, 255, 255, 0.1) inset;
-            border: 4px solid #333;
-            border-radius: 4px;
-            background-color: #000;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reto de 30 Días de Flexiones</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+  :root{
+    --bg:#0a0f1c;--bg2:#111a2e;--card:#15203a;--card2:#1a2748;
+    --blue:#00b4ff;--green:#00ff88;--text:#e6edf7;--muted:#8aa0c2;
+    --rest:#ff7a59;--shadow:0 8px 30px rgba(0,180,255,.15);
+  }
+  body{
+    background:radial-gradient(circle at 20% 0%,#102040 0%,var(--bg) 60%);
+    color:var(--text);min-height:100vh;padding:20px;line-height:1.5;
+  }
+  .container{max-width:1100px;margin:0 auto}
+  header{text-align:center;padding:30px 10px;margin-bottom:20px}
+  header h1{
+    font-size:clamp(1.6rem,4vw,2.6rem);font-weight:800;
+    background:linear-gradient(90deg,var(--blue),var(--green));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-transform:uppercase;letter-spacing:1px;
+  }
+  header p{color:var(--muted);margin-top:8px;font-size:1rem}
+  .countdown{
+    margin-top:20px;display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;
+  }
+  .countdown div{
+    background:var(--card);padding:12px 16px;border-radius:12px;min-width:70px;
+    border:1px solid rgba(0,180,255,.2);box-shadow:var(--shadow);
+  }
+  .countdown div b{display:block;font-size:1.6rem;color:var(--green)}
+  .countdown div span{font-size:.75rem;color:var(--muted);text-transform:uppercase}
 
-        canvas { display: block; width: 100%; height: 100%; border-radius: 2px; }
+  .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px}
+  .info-card{
+    background:linear-gradient(135deg,var(--card),var(--card2));
+    border:1px solid rgba(255,255,255,.05);border-radius:16px;padding:20px;
+    box-shadow:var(--shadow);transition:transform .25s;
+  }
+  .info-card:hover{transform:translateY(-3px)}
+  .info-card h3{display:flex;align-items:center;gap:10px;color:var(--blue);margin-bottom:12px;font-size:1.1rem}
+  .info-card .icon{font-size:1.5rem}
+  .info-card ul{list-style:none}
+  .info-card li{padding:6px 0;color:var(--text);font-size:.95rem;border-bottom:1px dashed rgba(255,255,255,.05)}
+  .info-card li:last-child{border:none}
 
-        /* Barra de Progreso */
-        #progress-container {
-            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-            width: 400px; height: 12px; background: rgba(0,0,0,0.6);
-            border: 2px solid #555; border-radius: 10px; z-index: 5; display: none;
-            overflow: hidden;
-        }
-        #progress-fill {
-            width: 0%; height: 100%; background: linear-gradient(90deg, #00ffcc, #00ff66);
-            box-shadow: 0 0 10px #00ffcc; transition: width 0.1s linear;
-        }
+  .progress-section{
+    background:var(--card);padding:20px;border-radius:16px;margin-bottom:24px;
+    border:1px solid rgba(0,255,136,.15);box-shadow:var(--shadow);
+  }
+  .progress-bar{
+    width:100%;height:18px;background:#0a1530;border-radius:20px;overflow:hidden;margin:12px 0;
+    box-shadow:inset 0 0 8px rgba(0,0,0,.5);
+  }
+  .progress-fill{
+    height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));
+    border-radius:20px;transition:width .6s ease;box-shadow:0 0 12px var(--green);
+  }
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;text-align:center}
+  .stat{background:#0a1530;padding:12px;border-radius:12px}
+  .stat b{display:block;font-size:1.4rem;color:var(--green)}
+  .stat span{font-size:.75rem;color:var(--muted);text-transform:uppercase}
 
-        #attempt-counter { 
-            position: absolute; top: 10px; left: 20px; font-size: 20px; 
-            color: rgba(255,255,255,0.7); text-shadow: 2px 2px 0 #000; z-index: 5; display: none;
-        }
-
-        /* Pantallas de Interfaz */
-        .ui-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 10; display: none;
-            animation: fadeIn 0.3s ease-out;
-        }
-        .ui-screen.active { display: flex; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        h1 { font-size: 55px; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 0 20px rgba(0, 255, 204, 0.5); letter-spacing: 3px; }
-        h1 span { color: #00ffcc; }
-        .subtitle { color: #aaa; margin-bottom: 25px; font-size: 14px; letter-spacing: 1px; }
-
-        .btn {
-            background: linear-gradient(to bottom, #4CAF50, #2E7D32);
-            border: 3px solid #1B5E20; color: white; padding: 12px 35px; font-size: 20px;
-            cursor: pointer; border-radius: 6px; margin: 10px; text-transform: uppercase;
-            box-shadow: 0 6px 0 #1B5E20, 0 10px 20px rgba(0,0,0,0.5); 
-            transition: all 0.15s; position: relative; overflow: hidden;
-        }
-        .btn::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: rgba(255,255,255,0.1); transform: rotate(45deg); transition: 0.3s; opacity: 0;
-        }
-        .btn:hover::after { opacity: 1; transform: rotate(45deg) translate(20%, 20%); }
-        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #1B5E20; }
-        
-        .level-btns { display: flex; gap: 15px; margin-top: 10px; }
-        .btn-stereo { background: #1e90ff; border-color: #00008b; box-shadow: 0 6px 0 #00008b; }
-        .btn-deadlocked { background: #8a2be2; border-color: #4b0082; box-shadow: 0 6px 0 #4b0082; }
-        .btn-bloodbath { background: #ff0000; border-color: #8b0000; box-shadow: 0 6px 0 #8b0000; }
-        
-        .btn-menu { background: #555; border-color: #222; box-shadow: 0 6px 0 #222; }
-
-    </style>
+  .week{
+    background:linear-gradient(135deg,var(--card),var(--card2));
+    border-radius:16px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow);
+    border:1px solid rgba(255,255,255,.05);
+  }
+  .week h2{
+    color:var(--blue);margin-bottom:14px;font-size:1.2rem;
+    display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:1px;
+  }
+  .days{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+  .day{
+    background:#0d1730;border-radius:12px;padding:14px;border:1px solid rgba(0,180,255,.15);
+    cursor:pointer;transition:all .3s;position:relative;overflow:hidden;
+  }
+  .day:hover{transform:translateY(-3px);border-color:var(--blue)}
+  .day .num{font-size:.75rem;color:var(--muted);text-transform:uppercase}
+  .day .name{font-weight:700;color:var(--text);margin:4px 0 10px;font-size:1rem}
+  .day .detail{font-size:.85rem;color:var(--muted);line-height:1.6}
+  .day .detail b{color:var(--green)}
+  .day.rest{background:linear-gradient(135deg,#3a1f2e,#2a1525);border-color:rgba(255,122,89,.3)}
+  .day.rest .name{color:var(--rest)}
+  .day.done{
+    background:linear-gradient(135deg,#0f3a2a,#0a2a1f);border-color:var(--green);
+    animation:pop .5s ease;
+  }
+  .day.done::after{
+    content:"✓";position:absolute;top:8px;right:12px;color:var(--green);
+    font-size:1.4rem;font-weight:bold;
+  }
+  @keyframes pop{
+    0%{transform:scale(1)}50%{transform:scale(1.05);box-shadow:0 0 25px var(--green)}100%{transform:scale(1)}
+  }
+  .toast{
+    position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);
+    background:linear-gradient(90deg,var(--blue),var(--green));color:#001020;
+    padding:14px 22px;border-radius:30px;font-weight:700;box-shadow:0 8px 30px rgba(0,255,136,.4);
+    opacity:0;transition:all .4s ease;z-index:99;text-align:center;max-width:90%;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  footer{text-align:center;color:var(--muted);font-size:.85rem;padding:30px 10px}
+  @media(max-width:500px){
+    .stats{grid-template-columns:1fr 1fr}
+    header{padding:20px 0}
+  }
+</style>
 </head>
 <body>
-
-    <div id="game-wrapper">
-        <canvas id="gameCanvas" width="800" height="400"></canvas>
-        
-        <div id="attempt-counter">INTENTO 1</div>
-        <div id="progress-container"><div id="progress-fill"></div></div>
-
-        <div id="menuScreen" class="ui-screen active">
-            <h1>GEOMETRY <span>PRO</span></h1>
-            <p class="subtitle">Haz clic o presiona ESPACIO para saltar (Cooldown: 0.5s)</p>
-            <div class="level-btns">
-                <button class="btn btn-stereo" onclick="startGame('stereo')">STEREO MADNESS</button>
-                <button class="btn btn-deadlocked" onclick="startGame('deadlocked')">DEADLOCKED</button>
-                <button class="btn btn-bloodbath" onclick="startGame('bloodbath')">BLOODBATH</button>
-            </div>
-        </div>
-
-        <div id="deathScreen" class="ui-screen">
-            <h1 style="color: #ff3333; text-shadow: 0 0 20px rgba(255,0,0,0.5);">DESTRUIDO</h1>
-            <div style="display:flex;">
-                <button class="btn" onclick="retryLevel()">REINTENTAR</button>
-                <button class="btn btn-menu" onclick="showMenu()">MENÚ</button>
-            </div>
-        </div>
-
-        <div id="winScreen" class="ui-screen">
-            <h1 style="color: #00ffcc; text-shadow: 0 0 30px rgba(0,255,204,0.8);">¡NIVEL COMPLETADO!</h1>
-            <p class="subtitle" id="win-stats">Intentos: 1</p>
-            <button class="btn btn-menu" onclick="showMenu()">VOLVER AL MENÚ</button>
-        </div>
+<div class="container">
+  <header>
+    <h1>💪 Reto de 30 Días para Pasar de 10 a 30+ Flexiones</h1>
+    <p>Tu cuerpo puede. Tu mente lo decide.</p>
+    <div class="countdown" id="countdown">
+      <div><b id="cd-d">0</b><span>Días</span></div>
+      <div><b id="cd-h">0</b><span>Horas</span></div>
+      <div><b id="cd-m">0</b><span>Min</span></div>
+      <div><b id="cd-s">0</b><span>Seg</span></div>
     </div>
+  </header>
 
-    <script>
-        /* ==========================================================================
-           MOTOR DEL JUEGO HTML5 CANVAS (JAVASCRIPT PRO OPTIMIZADO)
-           ========================================================================== */
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+  <div class="info-grid">
+    <div class="info-card">
+      <h3><span class="icon">😴</span> Horario de Sueño</h3>
+      <ul>
+        <li>🌙 Dormir: <b>9:00 p. m.</b></li>
+        <li>☀️ Despertar: <b>5:15 a. m.</b></li>
+        <li>⏱️ Total: 8h 15min de descanso</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h3><span class="icon">💧</span> Hidratación</h3>
+      <ul>
+        <li>1 vaso de agua al despertar</li>
+        <li>Sorbos cada 20–30 minutos</li>
+        <li>Agua antes y después de entrenar</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h3><span class="icon">🏋️</span> Reglas de Entrenamiento</h3>
+      <ul>
+        <li>Descanso entre series: <b>75 seg</b></li>
+        <li>Buena técnica > más repeticiones</li>
+        <li>Respira y mantén el core firme</li>
+      </ul>
+    </div>
+  </div>
 
-        // Estado del Juego
-        let gameState = 'menu'; // menu, playing, dead, win
-        let currentLevelKey = '';
-        let attempt = 1;
-        let animationId;
-        let lastTime = 0;
+  <div class="progress-section">
+    <h3 style="color:var(--green)">📊 Tu Progreso</h3>
+    <div class="progress-bar"><div class="progress-fill" id="fill"></div></div>
+    <div class="stats">
+      <div class="stat"><b id="s-done">0</b><span>Completados</span></div>
+      <div class="stat"><b id="s-left">30</b><span>Restantes</span></div>
+      <div class="stat"><b id="s-pct">0%</b><span>Progreso</span></div>
+    </div>
+  </div>
 
-        // Físicas Globales
-        const GRAVITY = 1.2;
-        const JUMP_FORCE = -14.5;
-        const GROUND_Y = 320; 
+  <div id="weeks"></div>
 
-        // Definición de Niveles (Ahora con 'finish' para completarlos)
-        const levels = {
-            stereo: { speed: 6, bgColor: '#0044cc', groundColor: '#002288', cubeColor: '#ffff00', mapLength: 3000, map: [
-                { type: 'spike', x: 600 }, { type: 'spike', x: 1000 }, { type: 'spike', x: 1040 },
-                { type: 'block', x: 1400, y: 280, w: 40, h: 40 }, { type: 'spike', x: 1600 },
-                { type: 'block', x: 2000, y: 280, w: 120, h: 40 }, { type: 'spike', x: 2040, y: 240 },
-                { type: 'finish', x: 2800 } // PORTAL DE META
-            ]},
-            deadlocked: { speed: 9, bgColor: '#2d004d', groundColor: '#1a0033', cubeColor: '#00ffcc', mapLength: 2500, map: [
-                { type: 'spike', x: 500 }, { type: 'spike', x: 540 }, { type: 'spike', x: 800 },
-                { type: 'block', x: 1100, y: 280, w: 40, h: 40 }, { type: 'block', x: 1250, y: 240, w: 40, h: 40 },
-                { type: 'spike', x: 1500 }, { type: 'spike', x: 1540 }, { type: 'spike', x: 1580 },
-                { type: 'finish', x: 2300 } // PORTAL DE META
-            ]},
-            bloodbath: { speed: 12, bgColor: '#330000', groundColor: '#1a0000', cubeColor: '#ff0000', mapLength: 2500, map: [
-                { type: 'spike', x: 400 }, { type: 'spike', x: 440 }, { type: 'spike', x: 480 },
-                { type: 'spike', x: 700 }, { type: 'block', x: 900, y: 280, w: 40, h: 40 }, 
-                { type: 'spike', x: 900, y: 240 }, { type: 'spike', x: 1100 }, { type: 'spike', x: 1140 }, { type: 'spike', x: 1180 },
-                { type: 'finish', x: 2300 } // PORTAL DE META
-            ]}
-        };
+  <footer>Hecho con 💙 para tu mejor versión. Toca un día para marcarlo.</footer>
+</div>
 
-        let currentLevel = null;
-        let obstacles = [];
-        let particles = [];
-        let backgroundStars = [];
-        let distance = 0;
+<div class="toast" id="toast"></div>
 
-        // Entidad Jugador
-        const player = { x: 100, y: GROUND_Y - 40, size: 40, dy: 0, rotation: 0, grounded: true, isDead: false };
+<script>
+const dayNames=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const plan=[
+ //week1
+ {s:4,r:8,p:20},{s:4,r:10,p:25},{rest:true},{s:5,r:10,p:30},{s:5,r:12,p:30},{rest:true},{s:6,r:12,p:40},
+ //week2
+ {s:5,r:12,p:30},{s:5,r:14,p:35},{rest:true},{s:6,r:14,p:40},{s:6,r:15,p:45},{rest:true},{s:7,r:15,p:50},
+ //week3
+ {s:6,r:15,p:40},{s:6,r:17,p:45},{rest:true},{s:7,r:17,p:50},{s:7,r:18,p:55},{rest:true},{s:8,r:18,p:60},
+ //week4
+ {s:7,r:18,p:50},{s:7,r:20,p:55},{rest:true},{s:8,r:20,p:60},{s:8,r:22,p:65},{rest:true},{s:9,r:22,p:70},
+ //final
+ {s:9,r:25,p:75},{s:10,r:28,p:80},{s:10,r:30,p:90}
+];
+const messages=[
+ "🔥 ¡Imparable! Un día más cerca de tu meta.",
+ "💪 La disciplina vence al talento.",
+ "🚀 Pequeños pasos, grandes cambios.",
+ "🏆 Hoy ganaste contra tu yo de ayer.",
+ "⚡ Tu fuerza está creciendo, sigue así.",
+ "🌟 Esto es lo que separa a los fuertes.",
+ "💯 Constancia > Motivación.",
+ "🎯 Cada flexión cuenta. ¡Vamos!"
+];
 
-        // SISTEMA DE SALTO CON RESTRICCIÓN DE TIEMPO (0.5 SEGUNDOS)
-        let lastJumpTime = 0;
+const KEY='reto30flex_v1';
+let state=JSON.parse(localStorage.getItem(KEY)||'{"done":[],"start":null}');
+if(!state.start){state.start=Date.now();save();}
 
-        window.addEventListener('keydown', (e) => { if (e.code === 'Space') handleJumpInput(); });
-        window.addEventListener('mousedown', handleJumpInput);
-        window.addEventListener('touchstart', handleJumpInput);
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 
-        function handleJumpInput() {
-            let currentTime = Date.now();
-            
-            if (gameState === 'playing' && player.grounded && !player.isDead) {
-                // CONDICIÓN: Han pasado al menos 500ms (0.5 segundos) desde el último salto
-                if (currentTime - lastJumpTime >= 500) {
-                    player.dy = JUMP_FORCE;
-                    player.grounded = false;
-                    lastJumpTime = currentTime;
-                }
-            } else if (gameState === 'dead') {
-                retryLevel();
-            } else if (gameState === 'win') {
-                showMenu();
-            }
-        }
+function render(){
+  const wrap=document.getElementById('weeks');
+  wrap.innerHTML='';
+  for(let w=0;w<5;w++){
+    const week=document.createElement('div');
+    week.className='week';
+    const start=w*7;
+    const end=Math.min(start+7,30);
+    week.innerHTML=`<h2>📅 Semana ${w+1}</h2><div class="days"></div>`;
+    const days=week.querySelector('.days');
+    for(let i=start;i<end;i++){
+      const d=plan[i];
+      const dayEl=document.createElement('div');
+      dayEl.className='day'+(d.rest?' rest':'')+(state.done.includes(i)?' done':'');
+      const name=dayNames[i%7];
+      dayEl.innerHTML=`
+        <div class="num">Día ${i+1}</div>
+        <div class="name">${name}</div>
+        <div class="detail">${d.rest
+          ?'🛌 <b>Descanso activo</b><br>Camina, estira, hidrátate.'
+          :`🏋️ <b>${d.s} series × ${d.r}</b> flexiones<br>⏱️ Descanso: 75s<br>🧘 Plancha: <b>${d.p}s</b>`}</div>
+      `;
+      dayEl.onclick=()=>toggle(i,dayEl);
+      days.appendChild(dayEl);
+    }
+    wrap.appendChild(week);
+  }
+  updateStats();
+}
 
-        // --- SISTEMAS DE EFECTOS VISUALES OPTIMIZADOS ---
-        function initStars() {
-            backgroundStars = [];
-            for(let i=0; i<30; i++) {
-                backgroundStars.push({ x: Math.random()*800, y: Math.random()*GROUND_Y, size: Math.random()*2+1 });
-            }
-        }
+function toggle(i,el){
+  const idx=state.done.indexOf(i);
+  if(idx>=0){state.done.splice(idx,1);el.classList.remove('done');}
+  else{
+    state.done.push(i);el.classList.add('done');
+    showToast(messages[Math.floor(Math.random()*messages.length)]);
+  }
+  save();updateStats();
+}
 
-        function drawStars() {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            backgroundStars.forEach(s => {
-                s.x -= currentLevel.speed * 0.1; // Efecto Parallax
-                if(s.x < 0) s.x = 800;
-                ctx.fillRect(s.x, s.y, s.size, s.size);
-            });
-        }
+function updateStats(){
+  const done=state.done.length;
+  const pct=Math.round((done/30)*100);
+  document.getElementById('fill').style.width=pct+'%';
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-left').textContent=30-done;
+  document.getElementById('s-pct').textContent=pct+'%';
+}
 
-        function createTrail() {
-            if(!player.grounded || player.isDead) return;
-            particles.push({
-                x: player.x - 5, y: player.y + player.size,
-                size: Math.random() * 8 + 4, life: 1, color: currentLevel.cubeColor
-            });
-        }
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
 
-        // --- LÓGICA DEL JUEGO ---
-        function startGame(levelKey) {
-            currentLevelKey = levelKey;
-            attempt = 1;
-            document.getElementById('menuScreen').classList.remove('active');
-            document.getElementById('attempt-counter').style.display = 'block';
-            document.getElementById('progress-container').style.display = 'block';
-            initLevel();
-        }
-
-        function retryLevel() {
-            attempt++;
-            document.getElementById('deathScreen').classList.remove('active');
-            initLevel();
-        }
-
-        function showMenu() {
-            gameState = 'menu';
-            document.getElementById('deathScreen').classList.remove('active');
-            document.getElementById('winScreen').classList.remove('active');
-            document.getElementById('menuScreen').classList.add('active'); // ARREGLADO
-            document.getElementById('attempt-counter').style.display = 'none';
-            document.getElementById('progress-container').style.display = 'none';
-            cancelAnimationFrame(animationId);
-        }
-
-        function initLevel() {
-            currentLevel = levels[currentLevelKey];
-            gameState = 'playing';
-            player.y = GROUND_Y - player.size;
-            player.dy = 0; player.rotation = 0; player.isDead = false; player.grounded = true;
-            distance = 0; particles = []; lastJumpTime = 0;
-            
-            initStars();
-            obstacles = JSON.parse(JSON.stringify(currentLevel.map));
-            document.getElementById('attempt-counter').innerText = `INTENTO ${attempt}`;
-            document.getElementById('progress-fill').style.width = '0%';
-            
-            if(animationId) cancelAnimationFrame(animationId);
-            gameLoop();
-        }
-
-        function die() {
-            player.isDead = true;
-            gameState = 'dead';
-            document.getElementById('deathScreen').classList.add('active');
-            for(let i=0; i<25; i++) {
-                particles.push({
-                    x: player.x + 20, y: player.y + 20, size: Math.random()*10+5,
-                    life: 1, color: currentLevel.cubeColor,
-                    dx: (Math.random()-0.5)*18, dy: (Math.random()-0.5)*18
-                });
-            }
-        }
-
-        function winLevel() {
-            gameState = 'win';
-            document.getElementById('win-stats').innerText = `Intentos totales: ${attempt}`;
-            document.getElementById('winScreen').classList.add('active');
-        }
-
-        function checkCollisions() {
-            const pBox = { x: player.x + 4, y: player.y + 4, w: player.size - 8, h: player.size - 8 };
-            player.grounded = false;
-
-            for (let obs of obstacles) {
-                let ox = obs.x - distance;
-                let oy = obs.y !== undefined ? obs.y : GROUND_Y - 40;
-                let ow = obs.type === 'block' ? obs.w : 40;
-                let oh = obs.type === 'block' ? obs.h : 40;
-
-                if (ox > 800 || ox + ow < 0) continue;
-
-                // COLISIÓN META
-                if (obs.type === 'finish') {
-                    if (pBox.x + pBox.w > ox + 20) { winLevel(); return; }
-                    continue;
-                }
-
-                if (obs.type === 'spike') {
-                    let hitboxDist = 12;
-                    if (pBox.x < ox + ow - hitboxDist && pBox.x + pBox.w > ox + hitboxDist &&
-                        pBox.y < oy + oh && pBox.y + pBox.h > oy + hitboxDist) {
-                        die(); return;
-                    }
-                } else if (obs.type === 'block') {
-                    if (pBox.x < ox + ow && pBox.x + pBox.w > ox && pBox.y < oy + oh && pBox.y + pBox.h > oy) {
-                        if (player.dy >= 0 && player.y + player.size - player.dy - 2 <= oy) {
-                            player.y = oy - player.size;
-                            player.dy = 0; player.grounded = true;
-                            player.rotation = Math.round(player.rotation / 90) * 90;
-                        } else { die(); return; }
-                    }
-                }
-            }
-
-            if (player.y >= GROUND_Y - player.size) {
-                player.y = GROUND_Y - player.size;
-                player.dy = 0; player.grounded = true;
-                player.rotation = Math.round(player.rotation / 90) * 90;
-            }
-        }
-
-        function update() {
-            if (player.isDead) {
-                particles.forEach(p => { p.x += p.dx || 0; p.y += p.dy || 0; p.life -= 0.02; });
-                return;
-            }
-            if (gameState === 'win') return; // Congelar al ganar
-
-            player.dy += GRAVITY; player.y += player.dy;
-            distance += currentLevel.speed;
-
-            // Actualizar barra de progreso
-            let progress = Math.min((distance / currentLevel.mapLength) * 100, 100);
-            document.getElementById('progress-fill').style.width = `${progress}%`;
-
-            if (!player.grounded) player.rotation += 8;
-            if(distance % 10 < currentLevel.speed) createTrail();
-
-            for(let i = particles.length -1; i >= 0; i--) {
-                let p = particles[i];
-                p.x -= currentLevel.speed;
-                p.life -= 0.05;
-                if(p.life <= 0) particles.splice(i, 1);
-            }
-
-            checkCollisions();
-        }
-
-        function draw() {
-            // Fondo con estrellas
-            ctx.fillStyle = currentLevel ? currentLevel.bgColor : '#111';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            if(currentLevel) drawStars();
-
-            if (currentLevel) {
-                ctx.fillStyle = currentLevel.groundColor;
-                ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
-                // Línea brillante del suelo
-                ctx.shadowBlur = 10; ctx.shadowColor = '#ffffff'; ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, GROUND_Y, canvas.width, 3);
-                ctx.shadowBlur = 0; // Reset
-            }
-
-            // Dibujar Partículas
-            particles.forEach(p => {
-                ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life);
-                ctx.fillRect(p.x, p.y - p.size, p.size, p.size);
-            });
-            ctx.globalAlpha = 1.0;
-
-            // Dibujar Obstáculos
-            obstacles.forEach(obs => {
-                let ox = obs.x - distance;
-                if (ox > 800 || ox < -100) return;
-
-                if (obs.type === 'finish') {
-                    // Dibujar Portal de Meta
-                    ctx.shadowBlur = 20; ctx.shadowColor = '#00ffcc';
-                    ctx.fillStyle = '#00ffcc'; ctx.fillRect(ox, GROUND_Y - 150, 20, 150);
-                    ctx.fillStyle = '#ffffff'; ctx.fillRect(ox + 5, GROUND_Y - 150, 10, 150);
-                    ctx.shadowBlur = 0;
-                } else if (obs.type === 'spike') {
-                    let oy = obs.y !== undefined ? obs.y : GROUND_Y - 40;
-                    ctx.fillStyle = '#111'; ctx.beginPath();
-                    ctx.moveTo(ox + 20, oy); ctx.lineTo(ox + 40, oy + 40); ctx.lineTo(ox, oy + 40); ctx.closePath(); ctx.fill();
-                    ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
-                } else if (obs.type === 'block') {
-                    let oy = obs.y !== undefined ? obs.y : GROUND_Y - obs.h;
-                    ctx.fillStyle = '#222'; ctx.fillRect(ox, oy, obs.w, obs.h);
-                    ctx.lineWidth = 3; ctx.strokeStyle = '#fff'; ctx.strokeRect(ox, oy, obs.w, obs.h);
-                }
-            });
-
-            // Dibujar Jugador
-            if (!player.isDead) {
-                ctx.save();
-                ctx.translate(player.x + player.size / 2, player.y + player.size / 2);
-                ctx.rotate(player.rotation * Math.PI / 180);
-                
-                // Resplandor del Cubo
-                ctx.shadowBlur = 15; ctx.shadowColor = currentLevel.cubeColor;
-                ctx.fillStyle = currentLevel.cubeColor;
-                ctx.fillRect(-player.size / 2, -player.size / 2, player.size, player.size);
-                ctx.shadowBlur = 0;
-                
-                ctx.lineWidth = 3; ctx.strokeStyle = '#ffffff';
-                ctx.strokeRect(-player.size / 2, -player.size / 2, player.size, player.size);
-                
-                ctx.fillStyle = '#000';
-                ctx.fillRect(-player.size/4, -player.size/4, player.size/4, player.size/4);
-                ctx.restore();
-            }
-        }
-
-        function gameLoop() {
-            if (gameState !== 'menu') { update(); draw(); }
-            animationId = requestAnimationFrame(gameLoop);
-        }
-
-        ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    </script>
+function tickCountdown(){
+  const end=state.start+30*24*60*60*1000;
+  const diff=Math.max(0,end-Date.now());
+  const d=Math.floor(diff/86400000);
+  const h=Math.floor(diff/3600000)%24;
+  const m=Math.floor(diff/60000)%60;
+  const s=Math.floor(diff/1000)%60;
+  document.getElementById('cd-d').textContent=d;
+  document.getElementById('cd-h').textContent=h;
+  document.getElementById('cd-m').textContent=m;
+  document.getElementById('cd-s').textContent=s;
+}
+setInterval(tickCountdown,1000);tickCountdown();
+render();
+</script>
 </body>
 </html>
