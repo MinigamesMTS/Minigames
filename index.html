@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Reto de 30 Días de Flexiones</title>
+<title>Reto de 30 Días de Dominadas</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
   :root{
@@ -113,7 +113,7 @@
 <body>
 <div class="container">
   <header>
-    <h1>💪 Reto de 30 Días para Pasar de 10 a 30+ Flexiones</h1>
+    <h1>💪 Reto de 30 Días para Mejorar tus Dominadas</h1>
     <p>Tu cuerpo puede. Tu mente lo decide.</p>
     <div class="countdown" id="countdown">
       <div><b id="cd-d">0</b><span>Días</span></div>
@@ -143,7 +143,7 @@
     <div class="info-card">
       <h3><span class="icon">🏋️</span> Reglas de Entrenamiento</h3>
       <ul>
-        <li>Descanso entre series: <b>75 seg</b></li>
+        <li>Descanso entre series: <b>90 seg</b></li>
         <li>Buena técnica > más repeticiones</li>
         <li>Respira y mantén el core firme</li>
       </ul>
@@ -170,29 +170,24 @@
 <script>
 const dayNames=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 const plan=[
- //week1
- {s:4,r:8,p:20},{s:4,r:10,p:25},{rest:true},{s:5,r:10,p:30},{s:5,r:12,p:30},{rest:true},{s:6,r:12,p:40},
- //week2
- {s:5,r:12,p:30},{s:5,r:14,p:35},{rest:true},{s:6,r:14,p:40},{s:6,r:15,p:45},{rest:true},{s:7,r:15,p:50},
- //week3
- {s:6,r:15,p:40},{s:6,r:17,p:45},{rest:true},{s:7,r:17,p:50},{s:7,r:18,p:55},{rest:true},{s:8,r:18,p:60},
- //week4
- {s:7,r:18,p:50},{s:7,r:20,p:55},{rest:true},{s:8,r:20,p:60},{s:8,r:22,p:65},{rest:true},{s:9,r:22,p:70},
- //final
- {s:9,r:25,p:75},{s:10,r:28,p:80},{s:10,r:30,p:90}
+ {s:3,r:2,p:15},{s:3,r:2,p:15},{rest:true},{s:4,r:2,p:20},{s:4,r:3,p:20},{rest:true},{s:4,r:3,p:25},
+ {s:4,r:3,p:25},{s:4,r:4,p:25},{rest:true},{s:5,r:4,p:30},{s:5,r:4,p:30},{rest:true},{s:5,r:5,p:35},
+ {s:5,r:5,p:35},{s:5,r:6,p:35},{rest:true},{s:6,r:6,p:40},{s:6,r:6,p:40},{rest:true},{s:6,r:7,p:45},
+ {s:6,r:7,p:45},{s:7,r:7,p:45},{rest:true},{s:7,r:8,p:50},{s:7,r:8,p:50},{rest:true},{s:8,r:8,p:55},
+ {s:8,r:9,p:55},{s:8,r:10,p:60},{s:1,r:'Máximo',p:60}
 ];
 const messages=[
- "🔥 ¡Imparable! Un día más cerca de tu meta.",
- "💪 La disciplina vence al talento.",
- "🚀 Pequeños pasos, grandes cambios.",
- "🏆 Hoy ganaste contra tu yo de ayer.",
- "⚡ Tu fuerza está creciendo, sigue así.",
- "🌟 Esto es lo que separa a los fuertes.",
- "💯 Constancia > Motivación.",
- "🎯 Cada flexión cuenta. ¡Vamos!"
+ "🔥 Una dominada más te acerca a tu objetivo.",
+ "💪 Tu espalda se está volviendo más fuerte.",
+ "🚀 Sigue así, cada repetición cuenta.",
+ "🏆 Hoy entrenaste como un campeón.",
+ "⚡ La fuerza se construye día a día.",
+ "🌟 Vas mejorando más de lo que crees.",
+ "💯 La constancia crea resultados.",
+ "🎯 Cada dominada cuenta."
 ];
 
-const KEY='reto30flex_v1';
+const KEY='reto30dominadas_v1';
 let state=JSON.parse(localStorage.getItem(KEY)||'{"done":[],"start":null}');
 if(!state.start){state.start=Date.now();save();}
 
@@ -218,7 +213,7 @@ function render(){
         <div class="name">${name}</div>
         <div class="detail">${d.rest
           ?'🛌 <b>Descanso activo</b><br>Camina, estira, hidrátate.'
-          :`🏋️ <b>${d.s} series × ${d.r}</b> flexiones<br>⏱️ Descanso: 75s<br>🧘 Plancha: <b>${d.p}s</b>`}</div>
+          :`🏋️ <b>${d.s} series × ${d.r}</b> dominadas<br>⏱️ Descanso: 90s<br>💪 Colgado en barra: <b>${d.p}s</b>`}</div>
       `;
       dayEl.onclick=()=>toggle(i,dayEl);
       days.appendChild(dayEl);
