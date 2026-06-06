@@ -3,265 +3,186 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Reto de 30 Días de Dominadas</title>
+<title>Contador de Ahorro · 24 días</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
   :root{
-    --bg:#0a0f1c;--bg2:#111a2e;--card:#15203a;--card2:#1a2748;
-    --blue:#00b4ff;--green:#00ff88;--text:#e6edf7;--muted:#8aa0c2;
-    --rest:#ff7a59;--shadow:0 8px 30px rgba(0,180,255,.15);
+    --bg1:#0f172a;--bg2:#1e293b;--card:#ffffff;--ink:#0f172a;--muted:#64748b;
+    --accent:#10b981;--accent2:#06b6d4;--ring:rgba(16,185,129,.35);
   }
+  html,body{min-height:100%}
   body{
-    background:radial-gradient(circle at 20% 0%,#102040 0%,var(--bg) 60%);
-    color:var(--text);min-height:100vh;padding:20px;line-height:1.5;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:radial-gradient(1200px 600px at 10% -10%,#1e3a8a 0%,transparent 60%),
+               radial-gradient(900px 500px at 110% 10%,#0e7490 0%,transparent 55%),
+               linear-gradient(135deg,var(--bg1),var(--bg2));
+    color:#e2e8f0;padding:24px;line-height:1.5;
   }
-  .container{max-width:1100px;margin:0 auto}
-  header{text-align:center;padding:30px 10px;margin-bottom:20px}
-  header h1{
-    font-size:clamp(1.6rem,4vw,2.6rem);font-weight:800;
-    background:linear-gradient(90deg,var(--blue),var(--green));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    text-transform:uppercase;letter-spacing:1px;
+  .container{max-width:980px;margin:0 auto}
+  .hero{
+    background:linear-gradient(135deg,#10b981,#06b6d4);
+    border-radius:28px;padding:36px 28px;text-align:center;
+    box-shadow:0 30px 60px -20px rgba(16,185,129,.5),0 0 0 1px rgba(255,255,255,.1) inset;
+    position:relative;overflow:hidden;
   }
-  header p{color:var(--muted);margin-top:8px;font-size:1rem}
-  .countdown{
-    margin-top:20px;display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;
+  .hero::before{
+    content:"";position:absolute;inset:-50%;
+    background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.25),transparent 50%);
+    animation:float 8s ease-in-out infinite;
   }
-  .countdown div{
-    background:var(--card);padding:12px 16px;border-radius:12px;min-width:70px;
-    border:1px solid rgba(0,180,255,.2);box-shadow:var(--shadow);
+  @keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-15px)}}
+  .hero h1{font-size:clamp(14px,2.2vw,18px);font-weight:600;letter-spacing:.18em;
+    text-transform:uppercase;color:rgba(255,255,255,.92);position:relative}
+  .hero .total{font-size:clamp(40px,8vw,72px);font-weight:800;color:#fff;
+    margin-top:8px;letter-spacing:-.02em;position:relative;
+    text-shadow:0 6px 20px rgba(0,0,0,.25)}
+  .hero .meta{margin-top:10px;color:rgba(255,255,255,.92);font-size:14px;position:relative}
+  .today{
+    margin:22px auto 0;text-align:center;font-size:18px;color:#cbd5e1;font-weight:500;
   }
-  .countdown div b{display:block;font-size:1.6rem;color:var(--green)}
-  .countdown div span{font-size:.75rem;color:var(--muted);text-transform:uppercase}
-
-  .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px}
-  .info-card{
-    background:linear-gradient(135deg,var(--card),var(--card2));
-    border:1px solid rgba(255,255,255,.05);border-radius:16px;padding:20px;
-    box-shadow:var(--shadow);transition:transform .25s;
+  .today b{color:#fff;text-transform:capitalize}
+  .progress-wrap{margin:18px auto 0;max-width:680px}
+  .progress{
+    height:14px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
   }
-  .info-card:hover{transform:translateY(-3px)}
-  .info-card h3{display:flex;align-items:center;gap:10px;color:var(--blue);margin-bottom:12px;font-size:1.1rem}
-  .info-card .icon{font-size:1.5rem}
-  .info-card ul{list-style:none}
-  .info-card li{padding:6px 0;color:var(--text);font-size:.95rem;border-bottom:1px dashed rgba(255,255,255,.05)}
-  .info-card li:last-child{border:none}
-
-  .progress-section{
-    background:var(--card);padding:20px;border-radius:16px;margin-bottom:24px;
-    border:1px solid rgba(0,255,136,.15);box-shadow:var(--shadow);
+  .bar{
+    height:100%;width:0;border-radius:999px;
+    background:linear-gradient(90deg,#10b981,#06b6d4,#3b82f6);
+    background-size:200% 100%;
+    transition:width 1.2s cubic-bezier(.2,.7,.2,1);
+    animation:shine 3s linear infinite;
   }
-  .progress-bar{
-    width:100%;height:18px;background:#0a1530;border-radius:20px;overflow:hidden;margin:12px 0;
-    box-shadow:inset 0 0 8px rgba(0,0,0,.5);
+  @keyframes shine{0%{background-position:0% 0}100%{background-position:200% 0}}
+  .progress-meta{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:#94a3b8}
+  .grid{
+    display:grid;gap:14px;margin-top:28px;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
   }
-  .progress-fill{
-    height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));
-    border-radius:20px;transition:width .6s ease;box-shadow:0 0 12px var(--green);
+  .card{
+    background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:20px;padding:18px 18px 16px;
+    backdrop-filter:blur(10px);
+    transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
+    opacity:0;transform:translateY(10px);
+    animation:rise .5s ease forwards;
   }
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;text-align:center}
-  .stat{background:#0a1530;padding:12px;border-radius:12px}
-  .stat b{display:block;font-size:1.4rem;color:var(--green)}
-  .stat span{font-size:.75rem;color:var(--muted);text-transform:uppercase}
-
-  .week{
-    background:linear-gradient(135deg,var(--card),var(--card2));
-    border-radius:16px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow);
-    border:1px solid rgba(255,255,255,.05);
+  .card:hover{
+    transform:translateY(-4px);
+    border-color:var(--ring);
+    box-shadow:0 20px 40px -20px rgba(16,185,129,.35);
   }
-  .week h2{
-    color:var(--blue);margin-bottom:14px;font-size:1.2rem;
-    display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:1px;
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+  .row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .badge{
+    font-size:12px;font-weight:700;color:#0f172a;
+    background:linear-gradient(135deg,#a7f3d0,#67e8f9);
+    padding:4px 10px;border-radius:999px;letter-spacing:.04em;
   }
-  .days{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-  .day{
-    background:#0d1730;border-radius:12px;padding:14px;border:1px solid rgba(0,180,255,.15);
-    cursor:pointer;transition:all .3s;position:relative;overflow:hidden;
+  .dow{font-size:13px;color:#94a3b8;text-transform:capitalize}
+  .amt{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.01em}
+  .acc{margin-top:6px;font-size:12px;color:#cbd5e1}
+  .acc b{color:#5eead4}
+  footer{
+    margin:32px 0 8px;text-align:center;color:#64748b;font-size:12px;
   }
-  .day:hover{transform:translateY(-3px);border-color:var(--blue)}
-  .day .num{font-size:.75rem;color:var(--muted);text-transform:uppercase}
-  .day .name{font-weight:700;color:var(--text);margin:4px 0 10px;font-size:1rem}
-  .day .detail{font-size:.85rem;color:var(--muted);line-height:1.6}
-  .day .detail b{color:var(--green)}
-  .day.rest{background:linear-gradient(135deg,#3a1f2e,#2a1525);border-color:rgba(255,122,89,.3)}
-  .day.rest .name{color:var(--rest)}
-  .day.done{
-    background:linear-gradient(135deg,#0f3a2a,#0a2a1f);border-color:var(--green);
-    animation:pop .5s ease;
-  }
-  .day.done::after{
-    content:"✓";position:absolute;top:8px;right:12px;color:var(--green);
-    font-size:1.4rem;font-weight:bold;
-  }
-  @keyframes pop{
-    0%{transform:scale(1)}50%{transform:scale(1.05);box-shadow:0 0 25px var(--green)}100%{transform:scale(1)}
-  }
-  .toast{
-    position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);
-    background:linear-gradient(90deg,var(--blue),var(--green));color:#001020;
-    padding:14px 22px;border-radius:30px;font-weight:700;box-shadow:0 8px 30px rgba(0,255,136,.4);
-    opacity:0;transition:all .4s ease;z-index:99;text-align:center;max-width:90%;
-  }
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  footer{text-align:center;color:var(--muted);font-size:.85rem;padding:30px 10px}
-  @media(max-width:500px){
-    .stats{grid-template-columns:1fr 1fr}
-    header{padding:20px 0}
+  @media (max-width:480px){
+    body{padding:16px}
+    .hero{padding:28px 18px;border-radius:22px}
+    .grid{grid-template-columns:1fr 1fr;gap:10px}
+    .card{padding:14px;border-radius:16px}
+    .amt{font-size:20px}
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>💪 Reto de 30 Días para Mejorar tus Dominadas</h1>
-    <p>Tu cuerpo puede. Tu mente lo decide.</p>
-    <div class="countdown" id="countdown">
-      <div><b id="cd-d">0</b><span>Días</span></div>
-      <div><b id="cd-h">0</b><span>Horas</span></div>
-      <div><b id="cd-m">0</b><span>Min</span></div>
-      <div><b id="cd-s">0</b><span>Seg</span></div>
-    </div>
-  </header>
+  <div class="container">
+    <section class="hero">
+      <h1>Dinero obtenido</h1>
+      <div class="total" id="total">$0</div>
+      <div class="meta">Reto de ahorro · 24 días</div>
+    </section>
 
-  <div class="info-grid">
-    <div class="info-card">
-      <h3><span class="icon">😴</span> Horario de Sueño</h3>
-      <ul>
-        <li>🌙 Dormir: <b>9:00 p. m.</b></li>
-        <li>☀️ Despertar: <b>5:15 a. m.</b></li>
-        <li>⏱️ Total: 8h 15min de descanso</li>
-      </ul>
+    <div class="today">Hoy es <b id="today">sábado</b></div>
+
+    <div class="progress-wrap">
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="progress-meta">
+        <span><span id="dayCount">0</span> / 24 días</span>
+        <span id="pct">0%</span>
+      </div>
     </div>
-    <div class="info-card">
-      <h3><span class="icon">💧</span> Hidratación</h3>
-      <ul>
-        <li>1 vaso de agua al despertar</li>
-        <li>Sorbos cada 20–30 minutos</li>
-        <li>Agua antes y después de entrenar</li>
-      </ul>
-    </div>
-    <div class="info-card">
-      <h3><span class="icon">🏋️</span> Reglas de Entrenamiento</h3>
-      <ul>
-        <li>Descanso entre series: <b>90 seg</b></li>
-        <li>Buena técnica > más repeticiones</li>
-        <li>Respira y mantén el core firme</li>
-      </ul>
-    </div>
+
+    <section class="grid" id="grid"></section>
+
+    <footer>Meta final: $105.000 · ¡Tú puedes! 💪</footer>
   </div>
-
-  <div class="progress-section">
-    <h3 style="color:var(--green)">📊 Tu Progreso</h3>
-    <div class="progress-bar"><div class="progress-fill" id="fill"></div></div>
-    <div class="stats">
-      <div class="stat"><b id="s-done">0</b><span>Completados</span></div>
-      <div class="stat"><b id="s-left">30</b><span>Restantes</span></div>
-      <div class="stat"><b id="s-pct">0%</b><span>Progreso</span></div>
-    </div>
-  </div>
-
-  <div id="weeks"></div>
-
-  <footer>Hecho con 💙 para tu mejor versión. Toca un día para marcarlo.</footer>
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script>
-const dayNames=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-const plan=[
- {s:3,r:2,p:15},{s:3,r:2,p:15},{rest:true},{s:4,r:2,p:20},{s:4,r:3,p:20},{rest:true},{s:4,r:3,p:25},
- {s:4,r:3,p:25},{s:4,r:4,p:25},{rest:true},{s:5,r:4,p:30},{s:5,r:4,p:30},{rest:true},{s:5,r:5,p:35},
- {s:5,r:5,p:35},{s:5,r:6,p:35},{rest:true},{s:6,r:6,p:40},{s:6,r:6,p:40},{rest:true},{s:6,r:7,p:45},
- {s:6,r:7,p:45},{s:7,r:7,p:45},{rest:true},{s:7,r:8,p:50},{s:7,r:8,p:50},{rest:true},{s:8,r:8,p:55},
- {s:8,r:9,p:55},{s:8,r:10,p:60},{s:1,r:'Máximo',p:60}
-];
-const messages=[
- "🔥 Una dominada más te acerca a tu objetivo.",
- "💪 Tu espalda se está volviendo más fuerte.",
- "🚀 Sigue así, cada repetición cuenta.",
- "🏆 Hoy entrenaste como un campeón.",
- "⚡ La fuerza se construye día a día.",
- "🌟 Vas mejorando más de lo que crees.",
- "💯 La constancia crea resultados.",
- "🎯 Cada dominada cuenta."
-];
-
-const KEY='reto30dominadas_v1';
-let state=JSON.parse(localStorage.getItem(KEY)||'{"done":[],"start":null}');
-if(!state.start){state.start=Date.now();save();}
-
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-
-function render(){
-  const wrap=document.getElementById('weeks');
-  wrap.innerHTML='';
-  for(let w=0;w<5;w++){
-    const week=document.createElement('div');
-    week.className='week';
-    const start=w*7;
-    const end=Math.min(start+7,30);
-    week.innerHTML=`<h2>📅 Semana ${w+1}</h2><div class="days"></div>`;
-    const days=week.querySelector('.days');
-    for(let i=start;i<end;i++){
-      const d=plan[i];
-      const dayEl=document.createElement('div');
-      dayEl.className='day'+(d.rest?' rest':'')+(state.done.includes(i)?' done':'');
-      const name=dayNames[i%7];
-      dayEl.innerHTML=`
-        <div class="num">Día ${i+1}</div>
-        <div class="name">${name}</div>
-        <div class="detail">${d.rest
-          ?'🛌 <b>Descanso activo</b><br>Camina, estira, hidrátate.'
-          :`🏋️ <b>${d.s} series × ${d.r}</b> dominadas<br>⏱️ Descanso: 90s<br>💪 Colgado en barra: <b>${d.p}s</b>`}</div>
-      `;
-      dayEl.onclick=()=>toggle(i,dayEl);
-      days.appendChild(dayEl);
-    }
-    wrap.appendChild(week);
+  const dows = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const START_DOW = 6; // Sábado
+  const days = [];
+  let acc = 0;
+  for (let i=0;i<24;i++){
+    const dow = (START_DOW+i)%7;
+    let amt = (dow===0||dow===6)?5000:4000;
+    if (i===20) amt = 5000; // ajuste para llegar a $105.000
+    acc += amt;
+    days.push({n:i+1, day:dows[dow], amt, acc});
   }
-  updateStats();
-}
+  const TOTAL = acc; // 105000
 
-function toggle(i,el){
-  const idx=state.done.indexOf(i);
-  if(idx>=0){state.done.splice(idx,1);el.classList.remove('done');}
-  else{
-    state.done.push(i);el.classList.add('done');
-    showToast(messages[Math.floor(Math.random()*messages.length)]);
+  const fmt = n => '$' + n.toLocaleString('es-CO');
+
+  // Día actual del reto: hoy es sábado (día 1 del reto en este ejemplo)
+  const today = new Date();
+  const todayName = dows[today.getDay()];
+  document.getElementById('today').textContent = todayName.toLowerCase();
+
+  // Cuántos días han transcurrido (asumimos inicio = hoy si hoy es sábado)
+  // Para simplicidad: avance = 1 día completado.
+  const completed = 1;
+
+  const grid = document.getElementById('grid');
+  days.forEach((d,i)=>{
+    const el = document.createElement('article');
+    el.className = 'card';
+    el.style.animationDelay = (i*40)+'ms';
+    el.innerHTML = `
+      <div class="row">
+        <span class="badge">Día ${d.n}</span>
+        <span class="dow">${d.day}</span>
+      </div>
+      <div class="amt">${fmt(d.amt)}</div>
+      <div class="acc">Acumulado: <b>${fmt(d.acc)}</b></div>
+    `;
+    grid.appendChild(el);
+  });
+
+  // Animar total y barra
+  const totalEl = document.getElementById('total');
+  const bar = document.getElementById('bar');
+  const pct = document.getElementById('pct');
+  const dayCount = document.getElementById('dayCount');
+
+  const targetAcc = days[completed-1]?.acc ?? 0;
+  const targetPct = (completed/24)*100;
+
+  // Animación numérica
+  let start = null, duration = 1400;
+  function anim(ts){
+    if(!start) start = ts;
+    const t = Math.min(1,(ts-start)/duration);
+    const eased = 1 - Math.pow(1-t,3);
+    totalEl.textContent = fmt(Math.round(targetAcc*eased));
+    dayCount.textContent = Math.round(completed*eased);
+    pct.textContent = Math.round(targetPct*eased) + '%';
+    if (t<1) requestAnimationFrame(anim);
   }
-  save();updateStats();
-}
+  requestAnimationFrame(anim);
 
-function updateStats(){
-  const done=state.done.length;
-  const pct=Math.round((done/30)*100);
-  document.getElementById('fill').style.width=pct+'%';
-  document.getElementById('s-done').textContent=done;
-  document.getElementById('s-left').textContent=30-done;
-  document.getElementById('s-pct').textContent=pct+'%';
-}
-
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
-}
-
-function tickCountdown(){
-  const end=state.start+30*24*60*60*1000;
-  const diff=Math.max(0,end-Date.now());
-  const d=Math.floor(diff/86400000);
-  const h=Math.floor(diff/3600000)%24;
-  const m=Math.floor(diff/60000)%60;
-  const s=Math.floor(diff/1000)%60;
-  document.getElementById('cd-d').textContent=d;
-  document.getElementById('cd-h').textContent=h;
-  document.getElementById('cd-m').textContent=m;
-  document.getElementById('cd-s').textContent=s;
-}
-setInterval(tickCountdown,1000);tickCountdown();
-render();
+  requestAnimationFrame(()=>{ bar.style.width = targetPct + '%'; });
 </script>
 </body>
 </html>
