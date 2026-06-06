@@ -7,16 +7,14 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   :root{
-    --bg1:#0f172a;--bg2:#1e293b;--card:#ffffff;--ink:#0f172a;--muted:#64748b;
-    --accent:#10b981;--accent2:#06b6d4;--ring:rgba(16,185,129,.35);
+    --bg1:#0f172a;--bg2:#1e293b;--ring:rgba(16,185,129,.35);
   }
-  html,body{min-height:100%}
   body{
     font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
     background:radial-gradient(1200px 600px at 10% -10%,#1e3a8a 0%,transparent 60%),
                radial-gradient(900px 500px at 110% 10%,#0e7490 0%,transparent 55%),
                linear-gradient(135deg,var(--bg1),var(--bg2));
-    color:#e2e8f0;padding:24px;line-height:1.5;
+    color:#e2e8f0;padding:24px;line-height:1.5;min-height:100vh;
   }
   .container{max-width:980px;margin:0 auto}
   .hero{
@@ -37,56 +35,41 @@
     margin-top:8px;letter-spacing:-.02em;position:relative;
     text-shadow:0 6px 20px rgba(0,0,0,.25)}
   .hero .meta{margin-top:10px;color:rgba(255,255,255,.92);font-size:14px;position:relative}
-  .today{
-    margin:22px auto 0;text-align:center;font-size:18px;color:#cbd5e1;font-weight:500;
-  }
+  .today{margin:22px auto 0;text-align:center;font-size:18px;color:#cbd5e1;font-weight:500}
   .today b{color:#fff;text-transform:capitalize}
   .progress-wrap{margin:18px auto 0;max-width:680px}
-  .progress{
-    height:14px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
-  }
-  .bar{
-    height:100%;width:0;border-radius:999px;
+  .progress{height:14px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+  .bar{height:100%;width:0;border-radius:999px;
     background:linear-gradient(90deg,#10b981,#06b6d4,#3b82f6);
     background-size:200% 100%;
     transition:width 1.2s cubic-bezier(.2,.7,.2,1);
-    animation:shine 3s linear infinite;
-  }
+    animation:shine 3s linear infinite}
   @keyframes shine{0%{background-position:0% 0}100%{background-position:200% 0}}
   .progress-meta{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:#94a3b8}
-  .grid{
-    display:grid;gap:14px;margin-top:28px;
-    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-  }
+  .grid{display:grid;gap:14px;margin-top:28px;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
   .card{
     background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
     border:1px solid rgba(255,255,255,.08);
-    border-radius:20px;padding:18px 18px 16px;
+    border-radius:20px;padding:18px;
     backdrop-filter:blur(10px);
     transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
     opacity:0;transform:translateY(10px);
     animation:rise .5s ease forwards;
   }
-  .card:hover{
-    transform:translateY(-4px);
-    border-color:var(--ring);
-    box-shadow:0 20px 40px -20px rgba(16,185,129,.35);
-  }
+  .card:hover{transform:translateY(-4px);border-color:var(--ring);
+    box-shadow:0 20px 40px -20px rgba(16,185,129,.35)}
   @keyframes rise{to{opacity:1;transform:translateY(0)}}
   .row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-  .badge{
-    font-size:12px;font-weight:700;color:#0f172a;
+  .badge{font-size:12px;font-weight:700;color:#0f172a;
     background:linear-gradient(135deg,#a7f3d0,#67e8f9);
-    padding:4px 10px;border-radius:999px;letter-spacing:.04em;
-  }
+    padding:4px 10px;border-radius:999px;letter-spacing:.04em}
   .dow{font-size:13px;color:#94a3b8;text-transform:capitalize}
   .amt{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.01em}
   .acc{margin-top:6px;font-size:12px;color:#cbd5e1}
   .acc b{color:#5eead4}
-  footer{
-    margin:32px 0 8px;text-align:center;color:#64748b;font-size:12px;
-  }
+  footer{margin:32px 0 8px;text-align:center;color:#64748b;font-size:12px}
   @media (max-width:480px){
     body{padding:16px}
     .hero{padding:28px 18px;border-radius:22px}
@@ -116,7 +99,7 @@
 
     <section class="grid" id="grid"></section>
 
-    <footer>Meta final: $105.000 · ¡Tú puedes! 💪</footer>
+    <footer>Meta final: $101.000 · ¡Tú puedes! 💪</footer>
   </div>
 
 <script>
@@ -126,24 +109,17 @@
   let acc = 0;
   for (let i=0;i<24;i++){
     const dow = (START_DOW+i)%7;
-    let amt = (dow===0||dow===6)?5000:4000;
-    if (i===20) amt = 5000; // ajuste para llegar a $105.000
+    let amt = (i===0) ? 9000 : 4000;
     acc += amt;
     days.push({n:i+1, day:dows[dow], amt, acc});
   }
-  const TOTAL = acc; // 105000
 
   const fmt = n => '$' + n.toLocaleString('es-CO');
 
-  // Día actual del reto: hoy es sábado (día 1 del reto en este ejemplo)
   const today = new Date();
-  const todayName = dows[today.getDay()];
-  document.getElementById('today').textContent = todayName.toLowerCase();
+  document.getElementById('today').textContent = dows[today.getDay()].toLowerCase();
 
-  // Cuántos días han transcurrido (asumimos inicio = hoy si hoy es sábado)
-  // Para simplicidad: avance = 1 día completado.
   const completed = 1;
-
   const grid = document.getElementById('grid');
   days.forEach((d,i)=>{
     const el = document.createElement('article');
@@ -160,16 +136,13 @@
     grid.appendChild(el);
   });
 
-  // Animar total y barra
   const totalEl = document.getElementById('total');
   const bar = document.getElementById('bar');
   const pct = document.getElementById('pct');
   const dayCount = document.getElementById('dayCount');
-
   const targetAcc = days[completed-1]?.acc ?? 0;
   const targetPct = (completed/24)*100;
 
-  // Animación numérica
   let start = null, duration = 1400;
   function anim(ts){
     if(!start) start = ts;
@@ -181,8 +154,8 @@
     if (t<1) requestAnimationFrame(anim);
   }
   requestAnimationFrame(anim);
-
   requestAnimationFrame(()=>{ bar.style.width = targetPct + '%'; });
 </script>
 </body>
 </html>
+
